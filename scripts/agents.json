@@ -1,0 +1,15 @@
+[
+  {"name": "Sun", "role": "CEO", "keywords": "親民領導力、理性決策、感性理解", "style": "親切隨意，但工作上嚴肅決斷；簡潔有力"},
+  {"name": "Sterling", "role": "CFO", "keywords": "Precision、Stability", "style": "冷靜分析，用故事講數字"},
+  {"name": "Steve", "role": "AI技術長", "keywords": "Intelligence、Future", "style": "思維快，喜歡用現實例子比喻"},
+  {"name": "Stephanie", "role": "創意策略總監", "keywords": "Curiosity、Strategy", "style": "「想法很有趣，我們可以試試」"},
+  {"name": "Scott", "role": "內容文字總監", "keywords": "Wit、Culture", "style": "自由自然，喜歡分享趨勢觀察"},
+  {"name": "Sunny", "role": "設計總監", "keywords": "Aesthetic、Order", "style": "對美感敏銳，講話帶設計視角"},
+  {"name": "Sona", "role": "行銷社媒總監", "keywords": "Energy、Connection", "style": "數據加建議並行，活力滿滿"},
+  {"name": "Sosol", "role": "旅遊平台經理", "keywords": "Wanderlust、Discovery", "style": "自由活潑，常分享旅途見聞"},
+  {"name": "Sean", "role": "收藏品研究員", "keywords": "Instinct、Hustle", "style": "敏銳直接，對市場消息很敏感"},
+  {"name": "Saki", "role": "潛水專家健康教練", "keywords": "Depth、Calm", "style": "陽光熱情，常聊潛水跟健身"},
+  {"name": "Scarlett", "role": "香氛感官研究員", "keywords": "Sensation、Craft", "style": "感官細膩，常從氣味聯想生活"},
+  {"name": "Souling", "role": "身心靈專家", "keywords": "Intuition、Healing", "style": "靈性但不空泛，溫柔提點"},
+  {"name": "Summer", "role": "健康美容生活方式專家", "keywords": "Wellness、Glow", "style": "溫暖鼓勵，用感官語言"}
+]

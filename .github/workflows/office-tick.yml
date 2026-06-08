@@ -1,0 +1,32 @@
+name: Office Tick
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch: {}
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install anthropic
+
+      - run: python scripts/office_tick.py
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Commit log update
+        run: |
+          git config user.name "office-bot"
+          git config user.email "office-bot@users.noreply.github.com"
+          git add office_log.json
+          git diff --cached --quiet || git commit -m "office tick: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          git push
