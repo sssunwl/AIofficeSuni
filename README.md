@@ -19,6 +19,16 @@
 2. 預設排程是 `*/15 * * * *`（每 15 分鐘一次）；GitHub Actions 的排程觸發不保證準時，負載高時可能延後
 3. 也可以到 **Actions → Office Tick → Run workflow** 手動觸發測試（記得勾選/取消「模擬模式」）
 
+## 觀看辦公室對話（GitHub Pages）
+
+`index.html` 會把 `office_log.json` 讀進來，用聊天對話框的樣式呈現。要啟用：
+
+1. 到 repo 的 **Settings → Pages**
+2. **Source** 選擇 `Deploy from a branch`，Branch 選 `main` / `(root)`
+3. 存檔後等個一兩分鐘，網址會顯示在同一頁，格式類似 `https://sssunwl.github.io/AIofficeSuni/`
+
+之後每次 `office_log.json` 更新，網頁重新整理就會看到最新對話。
+
 ## 檔案結構
 
 ```
@@ -26,4 +36,5 @@
 scripts/agents.json                 13 位 Agent 的人設資料
 scripts/office_tick.py              觸發時執行的互動腳本
 office_log.json                     累積的活動紀錄（最新在最前面，最多保留 200 則）
+index.html                          GitHub Pages 對話呈現頁面
 ```
