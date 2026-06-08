@@ -3,7 +3,12 @@ name: Office Tick
 on:
   schedule:
     - cron: "*/15 * * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      mock:
+        description: "模擬模式（不呼叫 API，不花錢，用內建對話樣板測試流程）"
+        type: boolean
+        default: false
 
 jobs:
   tick:
@@ -22,6 +27,7 @@ jobs:
       - run: python scripts/office_tick.py
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OFFICE_MOCK: ${{ inputs.mock && '1' || '' }}
 
       - name: Commit log update
         run: |
