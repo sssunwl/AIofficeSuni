@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Suniverse Virtual Office</title>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><defs><radialGradient id='sg' cx='40%25' cy='35%25'><stop offset='0%25' stop-color='%23FFE066'/><stop offset='60%25' stop-color='%23F5A623'/><stop offset='100%25' stop-color='%23C0620A'/></radialGradient></defs><g transform='translate(16,16)'><line x1='0' y1='-14' x2='0' y2='-10' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='9.9' y1='-9.9' x2='7.1' y2='-7.1' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='14' y1='0' x2='10' y2='0' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='9.9' y1='9.9' x2='7.1' y2='7.1' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='0' y1='14' x2='0' y2='10' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='-9.9' y1='9.9' x2='-7.1' y2='7.1' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='-14' y1='0' x2='-10' y2='0' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><line x1='-9.9' y1='-9.9' x2='-7.1' y2='-7.1' stroke='%23FFD040' stroke-width='2.2' stroke-linecap='round'/><circle cx='1' cy='-1' r='8.5' fill='url(%23sg)'/><ellipse cx='-2' cy='-3' rx='4' ry='2.5' fill='rgba(255,255,220,0.35)'/></g></svg>"/>
 <style>
 * { box-sizing:border-box; margin:0; padding:0; }
 body {
@@ -199,76 +200,82 @@ function rndInZone(name){
 // AGENTS
 // ══════════════════════════════
 const ADEFS=[
+  // home: [deskTileX, deskTileY] — agent returns here 85% of the time; null = zone-based
   {name:'Sun',      role:'CEO',              emoji:'☀️', kw:'Vision · Light',
    hair:'#B86800',skin:'#F0B870',top:'#1E3A5F',bot:'#142848',
-   prefer:['ceo'],          wander:['office','conf','lounge']},
+   home:null, prefer:['ceo'],          wander:['office','conf','lounge']},
 
   {name:'Sterling', role:'CFO',              emoji:'💰', kw:'Precision · Stability',
    hair:'#787878',skin:'#EDD8C0',top:'#3A3A4C',bot:'#252530',
-   prefer:['office'],        wander:['conf','cafe','ceo']},
+   home:[7,6], prefer:['office'],       wander:['conf','cafe','ceo']},
 
   {name:'Steve',    role:'AI技術長',          emoji:'🤖', kw:'Intelligence · Future',
    hair:'#1A1A2A',skin:'#CCA070',top:'#1A4A8A',bot:'#0E2A4A',
-   prefer:['office'],        wander:['conf','gym','lounge']},
+   home:[11,6], prefer:['office'],      wander:['conf','gym','lounge']},
 
   {name:'Stephanie',role:'創意策略總監',      emoji:'💡', kw:'Curiosity · Strategy',
    hair:'#6A2880',skin:'#EEC098',top:'#7A3A9A',bot:'#4A1860',
-   prefer:['office','lounge'], wander:['cafe','conf','zen']},
+   home:[15,6], prefer:['office','lounge'], wander:['cafe','conf','zen']},
 
   {name:'Scott',    role:'內容文字總監',      emoji:'✍️', kw:'Wit · Culture',
    hair:'#4A2810',skin:'#D09870',top:'#6A4828',bot:'#3C2818',
-   prefer:['office','cafe'],  wander:['lounge','zen','conf']},
+   home:[19,6], prefer:['office','cafe'],  wander:['lounge','zen','conf']},
 
   {name:'Sunny',    role:'設計總監',          emoji:'🎨', kw:'Aesthetic · Order',
    hair:'#D87020',skin:'#F0C898',top:'#D86030',bot:'#903818',
-   prefer:['office','zen'],   wander:['cafe','lounge','conf']},
+   home:[7,9],  prefer:['office','zen'],   wander:['cafe','lounge','conf']},
 
   {name:'Sona',     role:'行銷社媒總監',      emoji:'📣', kw:'Energy · Connection',
    hair:'#801010',skin:'#E8A070',top:'#C02828',bot:'#780F0F',
-   prefer:['office','lounge'], wander:['cafe','conf','gym']},
+   home:[11,9], prefer:['office','lounge'], wander:['cafe','conf','gym']},
 
   {name:'Sosol',    role:'旅遊平台經理',      emoji:'✈️', kw:'Wanderlust · Discovery',
    hair:'#103820',skin:'#C08050',top:'#1A6858',bot:'#0A3830',
-   prefer:['lounge','cafe'],  wander:['gym','zen','conf']},
+   home:[15,9], prefer:['lounge','cafe'],  wander:['gym','zen','conf']},
 
   {name:'Sean',     role:'收藏品研究員',      emoji:'🎯', kw:'Instinct · Hustle',
    hair:'#101010',skin:'#C89060',top:'#304020',bot:'#1A2810',
-   prefer:['office','zen'],   wander:['cafe','lounge','game']},
+   home:[19,9], prefer:['office','zen'],   wander:['cafe','lounge','game']},
 
   {name:'Saki',     role:'潛水専家',          emoji:'🤿', kw:'Depth · Calm',
    hair:'#C09830',skin:'#BE7238',top:'#186898',bot:'#083048',
-   prefer:['gym','office'],   wander:['lounge','cafe','zen']},
+   home:null, prefer:['gym','office'],   wander:['lounge','cafe','zen']},
 
   {name:'Scarlett', role:'香氛感官研究員',    emoji:'🕯️', kw:'Sensation · Craft',
    hair:'#580808',skin:'#EEC8A8',top:'#7A1828',bot:'#480A18',
-   prefer:['aroma','office'], wander:['cafe','lounge','zen']},
+   home:[7,12], prefer:['aroma','office'], wander:['cafe','lounge','zen']},
 
   {name:'Souling',  role:'身心靈專家',        emoji:'🔮', kw:'Intuition · Healing',
    hair:'#2A0860',skin:'#CC9880',top:'#3A0870',bot:'#200448',
-   prefer:['souling','meditate'], wander:['lounge','cafe','zen']},
+   home:null, prefer:['souling','meditate'], wander:['lounge','cafe','zen']},
 
   {name:'Summer',   role:'健康美容專家',      emoji:'🌸', kw:'Wellness · Glow',
    hair:'#D87888',skin:'#F4D0C0',top:'#C06080',bot:'#803050',
-   prefer:['gym','office'],   wander:['cafe','lounge','zen']},
+   home:[11,12], prefer:['gym','office'],   wander:['cafe','lounge','zen']},
 ];
 
 const agents = ADEFS.map((d,i)=>{
-  const sp=d.prefer[0];
-  const p=rndInZone(sp);
+  // Start at desk if assigned, otherwise random in preferred zone
+  let p;
+  if(d.home){
+    p={x:d.home[0]*TS+TS/2, y:(d.home[1]+1)*TS+TS*0.4};
+  } else {
+    p=rndInZone(d.prefer[0]);
+  }
   return{...d,
     x:p.x,y:p.y,tx:p.x,ty:p.y,
     state:'idle',
-    idleT:80+Math.random()*160,
+    idleT:300+i*80+Math.random()*400, // staggered so agents don't all move at once
     wFrame:0,wTick:0,
     bPhase:i*0.72,bY:0,
-    facing:1 // 1=right -1=left
+    facing:1
   };
 });
 
 // ══════════════════════════════
 // SPRITE LOADING
 // ══════════════════════════════
-const FW=48, FH=48;   // source frame size
+const FW=32, FH=32;   // source frame size (Limezu sprites are 32×32 per frame)
 const DW=64, DH=64;   // display size (scaled up for clarity)
 const SPRITES={};
 agents.forEach(ag=>{
@@ -279,7 +286,8 @@ agents.forEach(ag=>{
 
 // ── Tile Sheets ──
 const T={};
-['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32','Room_Builder_32x32'].forEach(n=>{
+['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32',
+ 'Room_Builder_32x32','Room_Builder_Floors_32x32','Room_Builder_Walls_32x32'].forEach(n=>{
   const img=new Image(); img.src=`assets/tiles/${n}.png`; T[n]=img;
 });
 
@@ -314,42 +322,52 @@ function buildStaticMap(){
   sx.fillStyle='#0A0A12';
   sx.fillRect(0,0,CW,CH);
 
-  // ── draw zone floors with Limezu Room_Builder tiles ──
-  const RB=T['Room_Builder_32x32'];
-  function floorTile(ftx,fty,zx,zy,zw,zh){
-    if(RB&&RB.complete&&RB.naturalWidth){
-      for(let r=zy;r<zy+zh;r++)
-        for(let c=zx;c<zx+zw;c++)
-          sx.drawImage(RB,ftx*TS,fty*TS,TS,TS,c*TS,r*TS,TS,TS);
+  // ── Zone floor & wall-strip rendering (Limezu tiles + depth) ──
+  const FL=T['Room_Builder_Floors_32x32'], WL=T['Room_Builder_Walls_32x32'];
+  // ft=[floorTileX,Y from Room_Builder_Floors]; wt=[wallTileX,Y from Room_Builder_Walls]
+  // null ft = dark room (solid fill only, no floor tile, no wall strip)
+  const ZD={
+    cafe:    {ft:[4,1], wt:[11,0]}, kitchen:{ft:[4,4],  wt:[11,2]},
+    snack:   {ft:[7,1], wt:[0,4]},  game:   {ft:[1,7],  wt:[0,10]},
+    theater: {ft:null,  wt:null},   gym:    {ft:null,   wt:null},
+    conf:    {ft:[10,1],wt:[22,6]}, lounge: {ft:[4,7],  wt:[11,4]},
+    office:  {ft:[1,1], wt:[0,4]},  ceo:    {ft:null,   wt:null},
+    studio:  {ft:null,  wt:null},   souling:{ft:null,   wt:[22,2]},
+    consult: {ft:[10,4],wt:[22,4]}, aroma:  {ft:[7,4],  wt:[11,10]},
+    zen:     {ft:[10,7],wt:[22,16]},meditate:{ft:null,  wt:null},
+  };
+  const WALL_H=2;
+  for(const[k,z] of Object.entries(Z)){
+    const d=ZD[k]||{};
+    // Base solid colour
+    sx.fillStyle=z.floor; sx.fillRect(z.x*TS,z.y*TS,z.w*TS,z.h*TS);
+    if(d.ft){
+      // Floor tiles (rows below wall strip)
+      if(FL&&FL.complete&&FL.naturalWidth)
+        for(let r=z.y+WALL_H;r<z.y+z.h;r++)
+          for(let c=z.x;c<z.x+z.w;c++)
+            sx.drawImage(FL,d.ft[0]*TS,d.ft[1]*TS,TS,TS,c*TS,r*TS,TS,TS);
+      // Wall strip fallback (darker shade for instant depth effect)
+      const hx=parseInt(z.floor.slice(1),16);
+      sx.fillStyle=`rgb(${((hx>>16&255)*.68)|0},${((hx>>8&255)*.68)|0},${((hx&255)*.68)|0})`;
+      sx.fillRect(z.x*TS,z.y*TS,z.w*TS,WALL_H*TS);
     }
+    // Wall tile overlay (light rooms: top 2 rows; dark rooms with wt: 2 rows)
+    if(d.wt&&WL&&WL.complete&&WL.naturalWidth)
+      for(let r=z.y;r<z.y+WALL_H;r++)
+        for(let c=z.x;c<z.x+z.w;c++)
+          sx.drawImage(WL,d.wt[0]*TS,d.wt[1]*TS,TS,TS,c*TS,r*TS,TS,TS);
+    // Depth shadow line at wall/floor boundary
+    if(d.ft){sx.fillStyle='rgba(0,0,0,.2)';sx.fillRect(z.x*TS,(z.y+WALL_H)*TS,z.w*TS,3);}
   }
-
-  // solid base for all zones
-  for(const[,z] of Object.entries(Z)){
-    sx.fillStyle=z.floor;
-    sx.fillRect(z.x*TS,z.y*TS,z.w*TS,z.h*TS);
-  }
-  // Limezu floor tile overlays (ftx,fty = tile coord in Room_Builder sheet)
-  // Row 0 of Room_Builder = light wood planks
-  floorTile(0,0, Z.cafe.x,Z.cafe.y,Z.cafe.w,Z.cafe.h);
-  floorTile(1,0, Z.kitchen.x,Z.kitchen.y,Z.kitchen.w,Z.kitchen.h);
-  floorTile(2,0, Z.snack.x,Z.snack.y,Z.snack.w,Z.snack.h);
-  floorTile(3,0, Z.game.x,Z.game.y,Z.game.w,Z.game.h);
-  floorTile(0,2, Z.conf.x,Z.conf.y,Z.conf.w,Z.conf.h);
-  floorTile(2,2, Z.lounge.x,Z.lounge.y,Z.lounge.w,Z.lounge.h);
-  floorTile(1,0, Z.office.x,Z.office.y,Z.office.w,Z.office.h);
-  floorTile(1,2, Z.consult.x,Z.consult.y,Z.consult.w,Z.consult.h);
-  floorTile(0,2, Z.aroma.x,Z.aroma.y,Z.aroma.w,Z.aroma.h);
-  floorTile(2,2, Z.zen.x,Z.zen.y,Z.zen.w,Z.zen.h);
-
-  // subtle tile grid for light floors
-  sx.strokeStyle='rgba(0,0,0,0.06)'; sx.lineWidth=1;
-  ['cafe','kitchen','snack','game','conf','lounge','office','consult','aroma','zen'].forEach(k=>{
-    const z=Z[k];
-    for(let ty=z.y;ty<z.y+z.h;ty++)
+  // Subtle floor grid (skip wall strip rows)
+  sx.strokeStyle='rgba(0,0,0,.06)'; sx.lineWidth=1;
+  for(const[k,z] of Object.entries(Z)){
+    if(!ZD[k]||!ZD[k].ft) continue;
+    for(let ty=z.y+WALL_H;ty<z.y+z.h;ty++)
       for(let tx=z.x;tx<z.x+z.w;tx++)
         sx.strokeRect(tx*TS+.5,ty*TS+.5,TS-1,TS-1);
-  });
+  }
 
   // ── zone border walls ──
   sx.fillStyle='#0A0A12';
@@ -877,7 +895,7 @@ function drawAgent(ag,hl){
     const isWalk=ag.state==='walking';
     // Row 0 = walk-south (front-facing). Always use this row so characters face viewer.
     const sy=0;
-    const frameIdx=isWalk?Math.floor(Date.now()/130)%4:0;
+    const frameIdx=isWalk?Math.floor(Date.now()/200)%2:0; // only frames 0-1 (both south-facing)
     const sx=frameIdx*FW;
 
     const drawX=x-DW/2;
@@ -938,7 +956,7 @@ function tickAgent(ag){
     if(d<SPD){
       ag.x=ag.tx; ag.y=ag.ty;
       ag.state='idle';
-      ag.idleT=120+Math.random()*220;
+      ag.idleT=500+Math.random()*700;
     } else {
       ag.x+=dx/d*SPD; ag.y+=dy/d*SPD;
       ag.facing=dx>0?1:-1;
@@ -948,9 +966,15 @@ function tickAgent(ag){
 }
 
 function setTarget(ag){
-  const pool=Math.random()<.65?ag.prefer:ag.wander;
-  const zone=pool[Math.floor(Math.random()*pool.length)];
-  const p=rndInZone(zone);
+  let p;
+  if(ag.home && Math.random()<0.85){
+    // 85% chance: return to assigned desk
+    p={x:ag.home[0]*TS+TS/2, y:(ag.home[1]+1)*TS+TS*0.4};
+  } else {
+    const pool=Math.random()<0.88?ag.prefer:ag.wander;
+    const zone=pool[Math.floor(Math.random()*pool.length)];
+    p=rndInZone(zone);
+  }
   ag.tx=p.x; ag.ty=p.y;
   ag.state='walking'; ag.wFrame=0; ag.wTick=0;
 }
