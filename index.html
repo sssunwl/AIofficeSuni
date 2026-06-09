@@ -36,7 +36,7 @@ body {
   position: relative;
   border: 3px solid #1E3A5F;
   box-shadow: 0 0 0 2px #C8956A, 0 0 30px rgba(200,149,106,.25);
-  margin-bottom: 12px;
+  transform-origin: top left;
 }
 canvas {
   display: block;
@@ -276,7 +276,7 @@ const agents = ADEFS.map((d,i)=>{
 // SPRITE LOADING
 // ══════════════════════════════
 const FW=32, FH=32;   // source frame size (Limezu sprites are 32×32 per frame)
-const DW=64, DH=64;   // display size (scaled up for clarity)
+const DW=48, DH=48;   // display size — 1.5× tile, proportional to Limezu environment
 const SPRITES={};
 agents.forEach(ag=>{
   const img=new Image();
@@ -288,7 +288,7 @@ agents.forEach(ag=>{
 const T={};
 ['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32',
  'Room_Builder_32x32','Room_Builder_Floors_32x32','Room_Builder_Walls_32x32',
- '5_Classroom_32x32'].forEach(n=>{
+ '5_Classroom_32x32','Room_Builder_3d_walls_32x32'].forEach(n=>{
   const img=new Image(); img.src=`assets/tiles/${n}.png`; T[n]=img;
 });
 
@@ -358,8 +358,15 @@ function buildStaticMap(){
       for(let r=z.y;r<z.y+WALL_H;r++)
         for(let c=z.x;c<z.x+z.w;c++)
           sx.drawImage(WL,d.wt[0]*TS,d.wt[1]*TS,TS,TS,c*TS,r*TS,TS,TS);
-    // Depth shadow line at wall/floor boundary
-    if(d.ft){sx.fillStyle='rgba(0,0,0,.2)';sx.fillRect(z.x*TS,(z.y+WALL_H)*TS,z.w*TS,3);}
+    // 3D wall thickness — bottom face ledge + shadow
+    if(d.ft){
+      const hx=parseInt(z.floor.slice(1),16);
+      // wall ledge (bottom face viewed from slightly above = deeper shadow)
+      sx.fillStyle=`rgb(${((hx>>16&255)*.42)|0},${((hx>>8&255)*.42)|0},${((hx&255)*.42)|0})`;
+      sx.fillRect(z.x*TS,(z.y+WALL_H)*TS,z.w*TS,11);
+      sx.fillStyle='rgba(0,0,0,.32)';
+      sx.fillRect(z.x*TS,(z.y+WALL_H)*TS+11,z.w*TS,3);
+    }
   }
   // Subtle floor grid (skip wall strip rows)
   sx.strokeStyle='rgba(0,0,0,.06)'; sx.lineWidth=1;
@@ -562,56 +569,62 @@ function buildStaticMap(){
 
   // ── Gym (x:5-11, y:0-4) ──
   { const zx=5*TS,zy=0,zw=7*TS,zh=5*TS;
-    // dark rubber floor
+    const GY=T['8_Gym_32x32'];
+    // dark rubber floor tiles (Gym sheet cols 0-1 rows 0-1 = dark mat tile, 64×64)
     for(let r=0;r<5;r++) for(let c=5;c<12;c++){
-      sx.fillStyle=(r+c)%2===0?'#161616':'#1A1A1A';
-      sx.fillRect(c*TS,r*TS,TS,TS);
+      if(GY&&GY.complete&&GY.naturalWidth){
+        const srcX=((c+r)%2===0)?0:64; // alternate between 2 dark mat tiles
+        sx.drawImage(GY, srcX, 0, 64, 64, c*TS, r*TS, TS, TS);
+      } else {
+        sx.fillStyle=(r+c)%2===0?'#161616':'#1A1A1A';
+        sx.fillRect(c*TS,r*TS,TS,TS);
+      }
     }
-    // mirror wall
+    // mirror wall strip
     sx.fillStyle='rgba(200,225,240,.18)'; sx.fillRect(zx,zy,zw,5);
     sx.fillStyle='#AABCC4'; sx.fillRect(zx+2,zy,zw-4,4);
-    // dumbbell rack
-    sx.fillStyle='#101010'; sx.fillRect(zx+4,zy+4,54,20);
-    sx.fillStyle='#1C1C1C'; sx.fillRect(zx+4,zy+4,54,6);
-    ['#D02020','#2060B8','#20A038','#C09010','#9020A0','#20A0A0'].forEach((c,i)=>{
-      sx.fillStyle=c; sx.fillRect(zx+6+i*9,zy+7,7,12);
-      sx.fillStyle='rgba(255,255,255,.2)'; sx.fillRect(zx+6+i*9,zy+7,7,3);
-    });
+    // Gym dumbbell rack (Gym sheet cols 0-5 rows 7-8 = 192×32px horizontal rack)
+    if(GY&&GY.complete&&GY.naturalWidth){
+      sx.drawImage(GY, 0, 224, 192, 32, zx+4, zy+4, 192, 28);
+    } else {
+      sx.fillStyle='#101010'; sx.fillRect(zx+4,zy+4,54,20);
+    }
+    // yoga mats (Gym sheet cols 0-1 rows 3-4 = red mat 64×32px)
+    if(GY&&GY.complete&&GY.naturalWidth){
+      sx.drawImage(GY, 0, 96, 64, 32, 6*TS+2, 3*TS+4, TS-4, TS+8);  // red mat
+      sx.drawImage(GY, 0, 128, 64, 32, 8*TS+2, 3*TS+4, TS-4, TS+8); // dark red/maroon
+      sx.drawImage(GY, 0, 160, 64, 32, 10*TS+2, 3*TS+4, TS-4, TS+8); // blue mat
+    } else {
+      [[6,3,'#A02828'],[8,3,'#1A4890'],[10,3,'#1A7030']].forEach(([tx,ty,c])=>{
+        sx.fillStyle=c; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,TS+8);
+      });
+    }
     // weight bench
     sx.fillStyle='#1E1E1E'; sx.fillRect(zx+4,zy+2*TS+4,52,14);
     sx.fillStyle='#2A2A2A'; sx.fillRect(zx+4,zy+2*TS+4,52,5);
-    sx.fillStyle='#A0A0A0'; sx.fillRect(zx+24,zy+2*TS-8,12,8); // barbell
+    sx.fillStyle='#A0A0A0'; sx.fillRect(zx+24,zy+2*TS-8,12,8);
     sx.fillStyle='#808080'; sx.fillRect(zx+14,zy+2*TS-6,34,4);
-    // yoga mats
-    [[6,3,'#A02828'],[8,3,'#1A4890'],[10,3,'#1A7030']].forEach(([tx,ty,c])=>{
-      sx.fillStyle=c; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,TS+8);
-      sx.fillStyle='rgba(255,255,255,.15)'; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,3);
-    });
-    // treadmill (right side)
-    sx.fillStyle='#1C2818'; sx.fillRect(zx+zw-36,zy+TS+2,34,TS-4);
-    sx.fillStyle='#263C22'; sx.fillRect(zx+zw-34,zy+TS+6,30,14);
-    sx.fillStyle='#C03818'; sx.fillRect(zx+zw-22,zy+TS,16,6);
+    // treadmill machine (Gym sheet cols 13-15 rows 0-2 = machine ~64×64)
+    if(GY&&GY.complete&&GY.naturalWidth){
+      sx.drawImage(GY, 416, 0, 64, 64, zx+zw-36, zy+TS, 48, 48);
+    } else {
+      sx.fillStyle='#1C2818'; sx.fillRect(zx+zw-36,zy+TS+2,34,TS-4);
+    }
   }
 
   // ── Conference (x:12-18, y:0-4) ──
   { const zx=12*TS,zy=0,zw=7*TS,zh=5*TS;
-    // projector screen at top
+    const CT13=T['13_Conference_Hall_32x32'];
+    // projector screen (top wall)
     sx.fillStyle='#E8EEF4'; sx.fillRect(zx+30,zy+2,zw-60,22);
     sx.fillStyle='#D8E4EE'; sx.fillRect(zx+32,zy+4,zw-64,16);
     sx.fillStyle='#8090A0'; sx.fillRect(zx+zw/2-8,zy,16,4);
-    // Limezu conference table via tile sheet (try row 0 of 13_Conference_Hall)
-    const CT13=T['13_Conference_Hall_32x32'];
+    // conference table — CT13 yellow table cloth (cols 3-8, rows 5-6 = 192×64px)
     if(CT13&&CT13.complete&&CT13.naturalWidth){
-      // draw the conference hall tile in the center
-      for(let ty=0;ty<3;ty++) for(let tx=0;tx<5;tx++)
-        sx.drawImage(CT13,tx*TS,ty*TS,TS,TS,(zx+TS+tx*TS),zy+TS+ty*TS,TS,TS);
+      sx.drawImage(CT13, 96, 160, 192, 64, zx+TS, zy+TS+10, 192, 64);
     } else {
-      // fallback: draw table programmatically
-      const tx0=zx+TS,ty0=zy+TS,tw=5*TS,th=3*TS;
-      sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(tx0+4,ty0+4,tw,th);
-      sx.fillStyle='#5C3818'; sx.fillRect(tx0,ty0,tw,th);
-      sx.fillStyle='#7A5030'; sx.fillRect(tx0,ty0,tw,12);
-      sx.fillStyle='#C8956A'; sx.fillRect(tx0+tw/2-20,ty0+th/2-3,40,5);
+      sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(zx+TS+4,zy+TS+14,5*TS,3*TS-10);
+      sx.fillStyle='#5C3818'; sx.fillRect(zx+TS,zy+TS+10,5*TS,3*TS-10);
     }
     // chairs top row
     [zx+TS+4,zx+2*TS+4,zx+3*TS+4,zx+4*TS+4,zx+5*TS+4].forEach(cx=>{
@@ -623,6 +636,10 @@ function buildStaticMap(){
       sx.fillStyle='#283858'; sx.fillRect(cx,zy+4*TS,22,13);
       sx.fillStyle='#3A5080'; sx.fillRect(cx,zy+4*TS,22,5);
     });
+    // golden waiting sofa — CT13 (cols 0-3, rows 1-2 = 128×64px)
+    if(CT13&&CT13.complete&&CT13.naturalWidth){
+      sx.drawImage(CT13, 0, 32, 128, 64, zx+2, zy+zh-70, 128, 64);
+    }
     // whiteboard (right edge)
     sx.fillStyle='#F0F4F8'; sx.fillRect(zx+zw-22,zy+TS,18,3*TS);
     sx.fillStyle='#E4ECF4'; sx.fillRect(zx+zw-21,zy+TS+1,16,3*TS-2);
@@ -632,19 +649,14 @@ function buildStaticMap(){
 
   // ── Lounge (x:19-24, y:0-4) ──
   { const zx=19*TS,zy=0,zw=6*TS,zh=5*TS;
-    // sofa (main section along bottom)
-    sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(zx+4,zy+zh-48,zw-28,44);
-    sx.fillStyle='#7888A0'; sx.fillRect(zx+4,zy+zh-52,zw-28,44);
-    sx.fillStyle='#8898B8'; sx.fillRect(zx+4,zy+zh-52,zw-28,12);
-    sx.fillStyle='#6070A0'; sx.fillRect(zx+4,zy+zh-12,zw-28,4);
-    [12,46,78].forEach(cx=>{
-      sx.fillStyle='#8090B0'; sx.fillRect(zx+cx,zy+zh-44,26,18);
-      sx.fillStyle='#A0B0C8'; sx.fillRect(zx+cx,zy+zh-44,26,6);
-    });
-    // side arm (left wall)
-    sx.fillStyle='#7888A0'; sx.fillRect(zx+4,zy+TS+4,20,52);
-    sx.fillStyle='#8898B8'; sx.fillRect(zx+4,zy+TS+4,20,10);
-    // coffee table
+    const LR=T['2_LivingRoom_32x32'];
+    // sofa — Limezu LivingRoom dark sofa (cols 0-3, rows 0-1 = 128×64px)
+    if(LR&&LR.complete&&LR.naturalWidth){
+      sx.drawImage(LR, 0, 0, 128, 64, zx+4, zy+zh-72, 128, 64);
+    } else {
+      sx.fillStyle='#7888A0'; sx.fillRect(zx+4,zy+zh-52,zw-28,44);
+    }
+    // coffee table (wood)
     sx.fillStyle='rgba(0,0,0,.15)'; sx.fillRect(zx+48,zy+TS+36,58,30);
     sx.fillStyle='#A87840'; sx.fillRect(zx+46,zy+TS+32,58,30);
     sx.fillStyle='#C09050'; sx.fillRect(zx+46,zy+TS+32,58,8);
@@ -654,7 +666,6 @@ function buildStaticMap(){
       sx.fillStyle=c; sx.fillRect(zx+zw-20,zy+2+i*18,6,14);
       sx.fillStyle=c; sx.fillRect(zx+zw-12,zy+2+i*18,8,14);
     });
-    // plant
     palm(zx+zw-44,zy+2);
     plant(zx+8,zy+4);
   }
@@ -892,14 +903,14 @@ function drawAgent(ag,hl){
   // shadow
   ctx.fillStyle='rgba(0,0,0,.28)';
   ctx.beginPath();
-  ctx.ellipse(x,y+3,11,4,0,0,Math.PI*2);
+  ctx.ellipse(x,y+2,8,3,0,0,Math.PI*2);
   ctx.fill();
 
   // selection ring
   if(hl){
     ctx.strokeStyle='#C8956A'; ctx.lineWidth=2;
     ctx.beginPath();
-    ctx.ellipse(x,y+3,14,6,0,0,Math.PI*2);
+    ctx.ellipse(x,y+2,11,5,0,0,Math.PI*2);
     ctx.stroke();
   }
 
@@ -1075,11 +1086,22 @@ function loop(){
 // ══════════════════════════════
 // INIT
 // ══════════════════════════════
+// ── Mobile scaling ──
+function scaleToFit(){
+  const s=Math.min(1,(window.innerWidth-8)/CW);
+  const wrap=document.getElementById('wrap');
+  wrap.style.transform=s<1?`scale(${s})`:'';
+  wrap.style.marginBottom=s<1?Math.round(CH*s-CH)+'px':'12px';
+  wrap.style.marginRight=s<1?Math.round(CW*s-CW)+'px':'';
+}
+window.addEventListener('resize',scaleToFit);
+scaleToFit();
+
 buildStaticMap(); // immediate pass (tiles may not be ready)
 fetchLog();
 setInterval(fetchLog,5*60*1000);
 loop();
-// Rebuild once tile sheets are loaded (adds gym mats, etc.)
+// Rebuild once all tile sheets are loaded
 Promise.all(Object.values(T).map(img=>new Promise(r=>{img.onload=r;img.onerror=r;}))).then(buildStaticMap);
 </script>
 </body>
