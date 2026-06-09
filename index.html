@@ -207,35 +207,35 @@ const ADEFS=[
 
   {name:'Sterling', role:'CFO',              emoji:'💰', kw:'Precision · Stability',
    hair:'#787878',skin:'#EDD8C0',top:'#3A3A4C',bot:'#252530',
-   home:[7,6], prefer:['office'],       wander:['conf','cafe','ceo']},
+   home:[7,8],  prefer:['office'],       wander:['conf','cafe','ceo']},
 
   {name:'Steve',    role:'AI技術長',          emoji:'🤖', kw:'Intelligence · Future',
    hair:'#1A1A2A',skin:'#CCA070',top:'#1A4A8A',bot:'#0E2A4A',
-   home:[11,6], prefer:['office'],      wander:['conf','gym','lounge']},
+   home:[11,8], prefer:['office'],      wander:['conf','gym','lounge']},
 
   {name:'Stephanie',role:'創意策略總監',      emoji:'💡', kw:'Curiosity · Strategy',
    hair:'#6A2880',skin:'#EEC098',top:'#7A3A9A',bot:'#4A1860',
-   home:[15,6], prefer:['office','lounge'], wander:['cafe','conf','zen']},
+   home:[15,8], prefer:['office','lounge'], wander:['cafe','conf','zen']},
 
   {name:'Scott',    role:'內容文字總監',      emoji:'✍️', kw:'Wit · Culture',
    hair:'#4A2810',skin:'#D09870',top:'#6A4828',bot:'#3C2818',
-   home:[19,6], prefer:['office','cafe'],  wander:['lounge','zen','conf']},
+   home:[19,8], prefer:['office','cafe'],  wander:['lounge','zen','conf']},
 
   {name:'Sunny',    role:'設計總監',          emoji:'🎨', kw:'Aesthetic · Order',
    hair:'#D87020',skin:'#F0C898',top:'#D86030',bot:'#903818',
-   home:[7,9],  prefer:['office','zen'],   wander:['cafe','lounge','conf']},
+   home:[7,11],  prefer:['office','zen'],   wander:['cafe','lounge','conf']},
 
   {name:'Sona',     role:'行銷社媒總監',      emoji:'📣', kw:'Energy · Connection',
    hair:'#801010',skin:'#E8A070',top:'#C02828',bot:'#780F0F',
-   home:[11,9], prefer:['office','lounge'], wander:['cafe','conf','gym']},
+   home:[11,11], prefer:['office','lounge'], wander:['cafe','conf','gym']},
 
   {name:'Sosol',    role:'旅遊平台經理',      emoji:'✈️', kw:'Wanderlust · Discovery',
    hair:'#103820',skin:'#C08050',top:'#1A6858',bot:'#0A3830',
-   home:[15,9], prefer:['lounge','cafe'],  wander:['gym','zen','conf']},
+   home:[15,11], prefer:['lounge','cafe'],  wander:['gym','zen','conf']},
 
   {name:'Sean',     role:'收藏品研究員',      emoji:'🎯', kw:'Instinct · Hustle',
    hair:'#101010',skin:'#C89060',top:'#304020',bot:'#1A2810',
-   home:[19,9], prefer:['office','zen'],   wander:['cafe','lounge','game']},
+   home:[19,11], prefer:['office','zen'],   wander:['cafe','lounge','game']},
 
   {name:'Saki',     role:'潛水専家',          emoji:'🤿', kw:'Depth · Calm',
    hair:'#C09830',skin:'#BE7238',top:'#186898',bot:'#083048',
@@ -243,7 +243,7 @@ const ADEFS=[
 
   {name:'Scarlett', role:'香氛感官研究員',    emoji:'🕯️', kw:'Sensation · Craft',
    hair:'#580808',skin:'#EEC8A8',top:'#7A1828',bot:'#480A18',
-   home:[7,12], prefer:['aroma','office'], wander:['cafe','lounge','zen']},
+   home:null, prefer:['aroma','office'], wander:['cafe','lounge','zen']},
 
   {name:'Souling',  role:'身心靈專家',        emoji:'🔮', kw:'Intuition · Healing',
    hair:'#2A0860',skin:'#CC9880',top:'#3A0870',bot:'#200448',
@@ -251,7 +251,7 @@ const ADEFS=[
 
   {name:'Summer',   role:'健康美容專家',      emoji:'🌸', kw:'Wellness · Glow',
    hair:'#D87888',skin:'#F4D0C0',top:'#C06080',bot:'#803050',
-   home:[11,12], prefer:['gym','office'],   wander:['cafe','lounge','zen']},
+   home:null, prefer:['gym','office'],   wander:['cafe','lounge','zen']},
 ];
 
 const agents = ADEFS.map((d,i)=>{
@@ -287,7 +287,8 @@ agents.forEach(ag=>{
 // ── Tile Sheets ──
 const T={};
 ['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32',
- 'Room_Builder_32x32','Room_Builder_Floors_32x32','Room_Builder_Walls_32x32'].forEach(n=>{
+ 'Room_Builder_32x32','Room_Builder_Floors_32x32','Room_Builder_Walls_32x32',
+ '5_Classroom_32x32'].forEach(n=>{
   const img=new Image(); img.src=`assets/tiles/${n}.png`; T[n]=img;
 });
 
@@ -659,11 +660,23 @@ function buildStaticMap(){
   }
 
   // ═══════════════════════════════════════════════
-  // OPEN OFFICE  (x:5-24, y:5-13) — 12 desks
+  // OPEN OFFICE  (x:5-24, y:5-13) — 8 desks, 2 rows
   // ═══════════════════════════════════════════════
-  // 3 rows × 4 cols  ty: 6,9,12   tx: 7,11,15,19
-  [6,9,12].forEach(ty=>[7,11,15,19].forEach(tx=>desk(tx,ty)));
-  // section divider plants
+  // Rows ty=8 and ty=11 (clear of wall strip at rows 5-6)
+  // Each desk: Classroom individual desk sprite (cols 9-10, rows 0-1 = teacher desk)
+  //            drawn 2×2 tiles (64×64px) at (tx*TS, (ty-1)*TS)
+  {
+    const CL=T['5_Classroom_32x32'];
+    [[7,8],[11,8],[15,8],[19,8],[7,11],[11,11],[15,11],[19,11]].forEach(([tx,ty])=>{
+      if(CL&&CL.complete&&CL.naturalWidth){
+        // individual teacher's desk (cols 10-11, rows 0-1 = naturally 64×64px)
+        sx.drawImage(CL, 320, 0, 64, 64, tx*TS, (ty-1)*TS, 64, 64);
+      } else {
+        desk(tx, ty);
+      }
+    });
+  }
+  // section divider plants (repositioned to match 2-row layout)
   [[5,5],[12,5],[19,5],[5,13],[12,13],[19,13]].forEach(([tx,ty])=>plant(tx*TS+6,ty*TS+6));
   // water cooler
   { const wx=5*TS+4,wy=6*TS+4;
