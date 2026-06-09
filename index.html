@@ -1,442 +1,573 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Suniverse Virtual Office</title>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Suniverse Virtual Office</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background: #0D1117;
+  font-family: 'Press Start 2P', monospace;
+  color: #F0EAE0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-x: hidden;
+}
 
-    :root {
-      --sand:    #EDE8E0;
-      --linen:   #F4F0E6;
-      --navy:    #1E3A5F;
-      --gold:    #C8956A;
-      --stone:   #8A7F72;
-      --soft-green: #D4E8D0;
-      --soft-green-border: #9DC49A;
-      --amber:   #F5E6C8;
-      --amber-border: #D4B07A;
-      --slate:   #D8DDE8;
-      --slate-border: #8A96AC;
-    }
+#hdr {
+  padding: 18px 16px 10px;
+  text-align: center;
+}
+.htitle { font-size: 13px; color: #C8956A; letter-spacing: .1em; }
+.hsub   { font-size: 7px;  color: #3A6A9A; margin-top: 5px; letter-spacing: .18em; }
+.hlive  {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 7px; color: #4CAF50; margin-top: 8px; letter-spacing: .1em;
+}
+.hdot { width:6px; height:6px; border-radius:50%; background:#4CAF50; animation:blink 1.4s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.15} }
 
-    body {
-      font-family: -apple-system, 'Helvetica Neue', sans-serif;
-      background: var(--sand);
-      color: #2C2C2C;
-      min-height: 100vh;
-      padding: 28px 20px 40px;
-    }
+#wrap {
+  position: relative;
+  border: 3px solid #1E3A5F;
+  box-shadow: 0 0 0 2px #C8956A, 0 0 30px rgba(200,149,106,.25);
+  margin-bottom: 12px;
+}
+canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 
-    /* ─── Header ─── */
-    header { text-align: center; margin-bottom: 28px; }
-    .brand { font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--stone); margin-bottom: 4px; }
-    h1 { font-size: 24px; font-weight: 300; letter-spacing: .08em; color: var(--navy); }
-    .subtitle { font-size: 11px; color: var(--gold); letter-spacing: .16em; margin-top: 4px; }
-    .live-badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      margin-top: 10px; padding: 3px 10px;
-      border: 1px solid var(--soft-green-border);
-      border-radius: 20px; font-size: 10px; color: #3A6A36; letter-spacing: .08em;
-    }
-    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #4CAF50; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+/* ── PANEL ── */
+#panel {
+  position: fixed;
+  top: 0; right: -390px;
+  width: 370px; height: 100vh;
+  background: #0D1117;
+  border-left: 3px solid #1E3A5F;
+  box-shadow: -4px 0 20px rgba(30,58,95,.5);
+  transition: right .25s ease;
+  z-index: 20;
+  display: flex; flex-direction: column;
+  font-family: -apple-system, 'Helvetica Neue', sans-serif;
+}
+#panel.open { right: 0; }
 
-    /* ─── Layout ─── */
-    .floor {
-      max-width: 1000px; margin: 0 auto;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 8px;
-    }
-    .top-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-    .mid-row  { display: grid; grid-template-columns: 180px 1fr 180px; gap: 8px; min-height: 380px; }
-    .bot-bar  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ph {
+  padding: 14px 14px 12px;
+  border-bottom: 2px solid #1E3A5F;
+  background: #161B22;
+  display: flex; align-items: center; gap: 10px;
+}
+.ph-em  { font-size: 26px; flex-shrink:0; }
+.ph-inf { flex:1; }
+.ph-nm  { font-family:'Press Start 2P',monospace; font-size:9px; color:#C8956A; }
+.ph-rl  { font-size:11px; color:#5A7A9A; margin-top:4px; }
+.ph-cl  {
+  background:none; border:1px solid #1E3A5F; color:#5A7A9A;
+  width:28px; height:28px; cursor:pointer; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:sans-serif;
+}
+.ph-cl:hover { border-color:#C8956A; color:#C8956A; }
 
-    /* ─── Room base ─── */
-    .room {
-      border-radius: 10px; padding: 14px 15px;
-      display: flex; flex-direction: column;
-    }
-    .room-tag   { font-size: 9px; letter-spacing: .22em; text-transform: uppercase; opacity: .55; margin-bottom: 5px; }
-    .room-title { font-size: 13px; font-weight: 600; letter-spacing: .03em; }
-    .room-desc  { font-size: 11px; margin-top: 5px; opacity: .6; line-height: 1.5; }
+.pb { flex:1; overflow-y:auto; padding:12px; }
+.pb::-webkit-scrollbar { width:3px; }
+.pb::-webkit-scrollbar-thumb { background:#1E3A5F; }
 
-    /* zone colours */
-    .z-util    { background: var(--soft-green); border: 1.5px solid var(--soft-green-border); color: #254424; }
-    .z-social  { background: var(--amber);      border: 1.5px solid var(--amber-border);      color: #5C3D11; }
-    .z-open    { background: var(--linen);      border: 1.5px solid #C8C0AE; }
-    .z-quiet   { background: var(--slate);      border: 1.5px solid var(--slate-border);      color: #1E2A3A; }
-    .z-ceo     { background: var(--navy);       border: 1.5px solid #0F2040;                  color: #F5F0E8; }
-    .z-founder { background: #3A2A1A;           border: 1.5px solid #1A1008;                  color: #F5E8D0; }
+.cv {
+  background:#161B22; border:1px solid #1E3A5F; border-radius:6px;
+  padding:11px 12px; margin-bottom:9px;
+}
+.cv-m {
+  font-size:10px; color:#3A5A7A; margin-bottom:7px;
+  display:flex; justify-content:space-between;
+}
+.cv-w { color:#C8956A; font-weight:700; }
+.turn { margin-bottom:5px; }
+.tn   { font-size:10px; font-weight:700; color:#4A9FD4; margin-bottom:2px; }
+.tn.s { color:#C8956A; }
+.tt   { font-size:12px; color:#C8C0B8; line-height:1.55; }
 
-    /* ─── Social list ─── */
-    .s-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
-    .s-item { font-size: 11px; display: flex; align-items: center; gap: 6px; }
-    .s-dot  { width: 5px; height: 5px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
+.empty {
+  text-align:center; padding:36px 16px;
+  color:#3A5A7A; font-size:12px; line-height:2.2;
+  font-family:sans-serif;
+}
 
-    /* ─── Quiet list ─── */
-    .q-list { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
-    .q-item { font-size: 11px; display: flex; align-items: center; gap: 6px; }
-    .q-dot  { width: 5px; height: 5px; border-radius: 50%; background: #6A8AC8; flex-shrink: 0; }
+#ov {
+  display:none; position:fixed; inset:0;
+  background:rgba(13,17,23,.5); z-index:19;
+}
+#ov.show { display:block; }
 
-    /* ─── Desk grid ─── */
-    .open-office .room-title { font-size: 12px; color: var(--stone); margin-bottom: 12px; }
-    .desks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
-    .desk {
-      background: #FDFAF4; border: 1.5px solid #D8D0C0; border-radius: 8px;
-      padding: 9px 7px; text-align: center;
-      cursor: pointer; transition: transform .15s, box-shadow .15s, border-color .15s;
-      position: relative;
-    }
-    .desk:hover        { transform: translateY(-2px); box-shadow: 0 4px 14px rgba(30,58,95,.13); border-color: var(--gold); }
-    .desk.active       { border-color: var(--navy); box-shadow: 0 0 0 2px var(--navy); }
-    .desk .d-emoji     { font-size: 18px; display: block; margin-bottom: 3px; }
-    .desk .d-name      { font-size: 11.5px; font-weight: 700; color: var(--navy); }
-    .desk .d-role      { font-size: 9px; color: var(--stone); margin-top: 2px; line-height: 1.3; }
-    .desk .d-kw        { font-size: 8.5px; color: var(--gold); margin-top: 3px; font-style: italic; }
-    .desk .unread-dot  {
-      position: absolute; top: 6px; right: 6px;
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #4CAF50; display: none;
-    }
-    .desk.has-new .unread-dot { display: block; }
-
-    /* ─── CEO room ─── */
-    .ceo-row { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
-    .ceo-avatar { font-size: 26px; }
-    .ceo-name  { font-size: 15px; font-weight: 700; letter-spacing: .05em; }
-    .ceo-title { font-size: 10px; opacity: .65; margin-top: 2px; }
-    .z-ceo .room-desc { color: #A0B8D0; }
-
-    /* ─── Chat panel ─── */
-    #chat-panel {
-      position: fixed; top: 0; right: -420px;
-      width: 400px; height: 100vh;
-      background: #FAFAF7; border-left: 1px solid #D8D0C0;
-      box-shadow: -4px 0 24px rgba(30,58,95,.12);
-      display: flex; flex-direction: column;
-      transition: right .3s cubic-bezier(.4,0,.2,1);
-      z-index: 100;
-    }
-    #chat-panel.open { right: 0; }
-
-    .panel-header {
-      padding: 18px 18px 14px;
-      border-bottom: 1px solid #E8E0D4;
-      display: flex; align-items: flex-start; gap: 12px;
-      background: white;
-    }
-    .panel-emoji  { font-size: 28px; flex-shrink: 0; }
-    .panel-info   { flex: 1; }
-    .panel-name   { font-size: 17px; font-weight: 700; color: var(--navy); }
-    .panel-role   { font-size: 11px; color: var(--stone); margin-top: 2px; }
-    .panel-close  {
-      background: none; border: none; cursor: pointer;
-      font-size: 20px; color: var(--stone); padding: 0 4px; line-height: 1;
-      flex-shrink: 0;
-    }
-    .panel-close:hover { color: var(--navy); }
-
-    .panel-body { flex: 1; overflow-y: auto; padding: 16px; }
-
-    .conv-card {
-      background: white; border: 1px solid #E8E0D4; border-radius: 10px;
-      padding: 12px 14px; margin-bottom: 10px;
-    }
-    .conv-meta {
-      font-size: 10px; color: var(--stone); margin-bottom: 8px;
-      display: flex; justify-content: space-between;
-    }
-    .conv-with { font-weight: 600; color: var(--navy); }
-    .bubble { margin-bottom: 7px; }
-    .bubble-name { font-size: 10px; font-weight: 700; color: var(--navy); margin-bottom: 2px; }
-    .bubble-name.other { color: var(--gold); }
-    .bubble-text { font-size: 12.5px; line-height: 1.55; color: #3A3A3A; }
-
-    .empty-state {
-      text-align: center; padding: 40px 20px;
-      color: var(--stone); font-size: 13px; line-height: 1.6;
-    }
-    .empty-icon { font-size: 32px; display: block; margin-bottom: 8px; }
-
-    /* ─── Overlay ─── */
-    #overlay {
-      display: none; position: fixed; inset: 0;
-      background: rgba(30,58,95,.12); z-index: 99;
-    }
-    #overlay.show { display: block; }
-
-    /* ─── Footer ─── */
-    footer {
-      max-width: 1000px; margin: 18px auto 0;
-      text-align: center; font-size: 10px;
-      letter-spacing: .16em; color: #B0A898;
-    }
-    #last-refresh { font-size: 10px; color: var(--stone); margin-top: 4px; }
-
-    /* ─── Scrollbar ─── */
-    .panel-body::-webkit-scrollbar { width: 4px; }
-    .panel-body::-webkit-scrollbar-track { background: transparent; }
-    .panel-body::-webkit-scrollbar-thumb { background: #D0C8BC; border-radius: 4px; }
-  </style>
+#ft {
+  font-size:6px; color:#2A4A6A;
+  letter-spacing:.14em; padding:6px 0 10px;
+  text-align:center;
+}
+</style>
 </head>
 <body>
 
-<header>
-  <p class="brand">Suniverse</p>
-  <h1>Virtual Office</h1>
-  <p class="subtitle">A universe built by S</p>
-  <div class="live-badge">
-    <span class="live-dot"></span>
-    Live — 每 15 分鐘更新一次對話
-  </div>
-</header>
-
-<div class="floor">
-
-  <!-- TOP -->
-  <div class="top-bar">
-    <div class="room z-util">
-      <span class="room-tag">Facility</span>
-      <span class="room-title">🏋️ Zen Gym</span>
-      <p class="room-desc">Saki × Summer 聯合主理<br>運動 / 瑜珈 / 飲食</p>
-    </div>
-    <div class="room z-util">
-      <span class="room-tag">Collaboration</span>
-      <span class="room-title">🗓 Conference Room</span>
-      <p class="room-desc">Sun 主持週會 · 跨部門提案<br>白板 · 投影</p>
-    </div>
-    <div class="room z-util">
-      <span class="room-tag">Recharge</span>
-      <span class="room-title">🌿 Lounge</span>
-      <p class="room-desc">休息放鬆 · 植栽牆<br>陽光角落</p>
-    </div>
-  </div>
-
-  <!-- MIDDLE -->
-  <div class="mid-row">
-
-    <!-- Social -->
-    <div class="room z-social">
-      <span class="room-tag">Social Zone</span>
-      <span class="room-title">☕ Café &amp; Rec</span>
-      <div class="s-list">
-        <div class="s-item"><span class="s-dot"></span>Café &amp; 餐廳</div>
-        <div class="s-item"><span class="s-dot"></span>零食吧台</div>
-        <div class="s-item"><span class="s-dot"></span>遊戲房</div>
-        <div class="s-item"><span class="s-dot"></span>電影院</div>
-      </div>
-    </div>
-
-    <!-- Open Office -->
-    <div class="room z-open open-office">
-      <span class="room-tag">Open Office · 點擊查看對話</span>
-      <div class="room-title">12 Agents · 環形工作區</div>
-      <div class="desks" id="desk-grid">
-        <!-- injected by JS -->
-      </div>
-    </div>
-
-    <!-- Quiet -->
-    <div class="room z-quiet">
-      <span class="room-tag">Quiet Corner</span>
-      <span class="room-title">🌙 Sanctuary</span>
-      <div class="q-list">
-        <div class="q-item"><span class="q-dot"></span>靜思室 I</div>
-        <div class="q-item"><span class="q-dot"></span>諮詢房（Souling）</div>
-        <div class="q-item"><span class="q-dot"></span>香氛實驗室（Scarlett）</div>
-        <div class="q-item"><span class="q-dot"></span>靜思室 II</div>
-        <div class="q-item"><span class="q-dot"></span>冥想室</div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- BOTTOM -->
-  <div class="bot-bar">
-    <div class="room z-ceo" style="cursor:pointer;" onclick="openCEO()">
-      <span class="room-tag">CEO Suite · 點擊查看對話</span>
-      <div class="ceo-row">
-        <span class="ceo-avatar">☀️</span>
-        <div>
-          <div class="ceo-name">Sun</div>
-          <div class="ceo-title">Chief Executive Officer</div>
-        </div>
-      </div>
-      <p class="room-desc" style="margin-top:8px;">協調者 · 決策支持 · 信息中樞</p>
-    </div>
-    <div class="room z-founder">
-      <span class="room-tag" style="color:#C8A870;">Founder Studio</span>
-      <div class="ceo-row">
-        <span class="ceo-avatar" style="font-size:24px;">🌊</span>
-        <div>
-          <div class="ceo-name" style="color:#F5E8D0;font-size:15px;font-weight:700;">SS</div>
-          <div class="ceo-title" style="color:#C0A880;">Founder · Suniverse</div>
-        </div>
-      </div>
-      <p class="room-desc" style="margin-top:8px;color:#C0A880;">A universe built by S</p>
-    </div>
-  </div>
-
+<div id="hdr">
+  <div class="htitle">✦ SUNIVERSE VIRTUAL OFFICE ✦</div>
+  <div class="hsub">A UNIVERSE BUILT BY S · PHASE II</div>
+  <div class="hlive"><span class="hdot"></span>LIVE · CLICK ANY AGENT TO VIEW CHATS</div>
 </div>
 
-<footer>
-  Suniverse &nbsp;·&nbsp; Virtual Office &nbsp;·&nbsp; Phase II
-  <div id="last-refresh"></div>
-</footer>
+<div id="wrap"><canvas id="game"></canvas></div>
+<div id="ft" id="rft">—</div>
 
-<!-- Chat Panel -->
-<div id="overlay" onclick="closePanel()"></div>
-<div id="chat-panel">
-  <div class="panel-header">
-    <span class="panel-emoji" id="panel-emoji">☀️</span>
-    <div class="panel-info">
-      <div class="panel-name" id="panel-name">—</div>
-      <div class="panel-role" id="panel-role">—</div>
+<div id="ov" onclick="closePanel()"></div>
+<div id="panel">
+  <div class="ph">
+    <span class="ph-em" id="pem">☀️</span>
+    <div class="ph-inf">
+      <div class="ph-nm" id="pnm">—</div>
+      <div class="ph-rl" id="prl">—</div>
     </div>
-    <button class="panel-close" onclick="closePanel()">✕</button>
+    <button class="ph-cl" onclick="closePanel()">✕</button>
   </div>
-  <div class="panel-body" id="panel-body"></div>
+  <div class="pb" id="pb"></div>
 </div>
 
 <script>
-const AGENTS = [
-  { name:"Sun",       role:"CEO",              emoji:"☀️",  kw:"Vision · Light" },
-  { name:"Sterling",  role:"CFO",              emoji:"💰",  kw:"Precision · Stability" },
-  { name:"Steve",     role:"AI技術長",          emoji:"🤖",  kw:"Intelligence · Future" },
-  { name:"Stephanie", role:"創意策略總監",       emoji:"💡",  kw:"Curiosity · Strategy" },
-  { name:"Scott",     role:"內容文字總監",       emoji:"✍️",  kw:"Wit · Culture" },
-  { name:"Sunny",     role:"設計總監",           emoji:"🎨",  kw:"Aesthetic · Order" },
-  { name:"Sona",      role:"行銷社媒總監",       emoji:"📣",  kw:"Energy · Connection" },
-  { name:"Sosol",     role:"旅遊平台經理",       emoji:"✈️",  kw:"Wanderlust · Discovery" },
-  { name:"Sean",      role:"收藏品研究員",       emoji:"🎯",  kw:"Instinct · Hustle" },
-  { name:"Saki",      role:"潛水專家健康教練",   emoji:"🤿",  kw:"Depth · Calm" },
-  { name:"Scarlett",  role:"香氛感官研究員",     emoji:"🕯️",  kw:"Sensation · Craft" },
-  { name:"Souling",   role:"身心靈專家",         emoji:"🔮",  kw:"Intuition · Healing" },
-  { name:"Summer",    role:"健康美容生活方式專家", emoji:"🌸", kw:"Wellness · Glow" },
+// ══════════════════════════════
+// CONFIG
+// ══════════════════════════════
+const TS  = 32;   // tile size px
+const TW  = 30;   // tiles wide
+const TH  = 18;   // tiles tall
+const CW  = TW*TS; // 960
+const CH  = TH*TS; // 576
+
+const canvas = document.getElementById('game');
+canvas.width = CW; canvas.height = CH;
+const ctx = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+// ══════════════════════════════
+// ZONES
+// ══════════════════════════════
+const Z = {
+  cafe:    {x:0,  y:5,  w:6,  h:9,  floor:'#F2E2B8', label:'☕ Café'},
+  office:  {x:6,  y:5,  w:18, h:9,  floor:'#EDEAE0', label:'💻 Open Office'},
+  quiet:   {x:24, y:5,  w:6,  h:9,  floor:'#D0D8E8', label:'🌙 Sanctuary'},
+  gym:     {x:6,  y:0,  w:8,  h:5,  floor:'#C8E4C0', label:'🏋️ Zen Gym'},
+  conf:    {x:14, y:0,  w:8,  h:5,  floor:'#C8D8EE', label:'🗓 Conference'},
+  lounge:  {x:22, y:0,  w:8,  h:5,  floor:'#EEE0CC', label:'🌿 Lounge'},
+  ceo:     {x:6,  y:14, w:12, h:4,  floor:'#1A3358', label:'☀️ CEO Suite'},
+  founder: {x:18, y:14, w:12, h:4,  floor:'#28180A', label:'🌊 Founder Studio'},
+};
+
+// tile-zone lookup table
+const zoneMap = Array.from({length:TH},()=>Array(TW).fill(null));
+for(const[k,z] of Object.entries(Z))
+  for(let ty=z.y;ty<z.y+z.h;ty++)
+    for(let tx=z.x;tx<z.x+z.w;tx++)
+      if(ty<TH&&tx<TW) zoneMap[ty][tx]=k;
+
+function rndInZone(name){
+  const z=Z[name], p=1.2;
+  return {
+    x:(z.x+p+Math.random()*(z.w-p*2))*TS,
+    y:(z.y+p+Math.random()*(z.h-p*2))*TS+TS*.6
+  };
+}
+
+// ══════════════════════════════
+// AGENTS
+// ══════════════════════════════
+const ADEFS=[
+  {name:'Sun',      role:'CEO',              emoji:'☀️', kw:'Vision · Light',
+   hair:'#B86800',skin:'#F0B870',top:'#1E3A5F',bot:'#142848',
+   prefer:['ceo'],     wander:['office','conf','lounge']},
+
+  {name:'Sterling', role:'CFO',              emoji:'💰', kw:'Precision · Stability',
+   hair:'#787878',skin:'#EDD8C0',top:'#3A3A4C',bot:'#252530',
+   prefer:['office'],   wander:['conf','cafe','ceo']},
+
+  {name:'Steve',    role:'AI技術長',          emoji:'🤖', kw:'Intelligence · Future',
+   hair:'#1A1A2A',skin:'#CCA070',top:'#1A4A8A',bot:'#0E2A4A',
+   prefer:['office'],   wander:['conf','gym','lounge']},
+
+  {name:'Stephanie',role:'創意策略總監',      emoji:'💡', kw:'Curiosity · Strategy',
+   hair:'#6A2880',skin:'#EEC098',top:'#7A3A9A',bot:'#4A1860',
+   prefer:['office','lounge'], wander:['cafe','conf','quiet']},
+
+  {name:'Scott',    role:'內容文字總監',      emoji:'✍️', kw:'Wit · Culture',
+   hair:'#4A2810',skin:'#D09870',top:'#6A4828',bot:'#3C2818',
+   prefer:['office','cafe'], wander:['lounge','quiet','conf']},
+
+  {name:'Sunny',    role:'設計總監',          emoji:'🎨', kw:'Aesthetic · Order',
+   hair:'#D87020',skin:'#F0C898',top:'#D86030',bot:'#903818',
+   prefer:['office','quiet'], wander:['cafe','lounge','conf']},
+
+  {name:'Sona',     role:'行銷社媒總監',      emoji:'📣', kw:'Energy · Connection',
+   hair:'#801010',skin:'#E8A070',top:'#C02828',bot:'#780F0F',
+   prefer:['office','lounge'], wander:['cafe','conf','gym']},
+
+  {name:'Sosol',    role:'旅遊平台經理',      emoji:'✈️', kw:'Wanderlust · Discovery',
+   hair:'#103820',skin:'#C08050',top:'#1A6858',bot:'#0A3830',
+   prefer:['office','lounge','cafe'], wander:['gym','quiet','conf']},
+
+  {name:'Sean',     role:'收藏品研究員',      emoji:'🎯', kw:'Instinct · Hustle',
+   hair:'#101010',skin:'#C89060',top:'#304020',bot:'#1A2810',
+   prefer:['office','quiet'], wander:['cafe','lounge','gym']},
+
+  {name:'Saki',     role:'潛水専家',          emoji:'🤿', kw:'Depth · Calm',
+   hair:'#C09830',skin:'#BE7238',top:'#186898',bot:'#083048',
+   prefer:['gym','office'], wander:['lounge','cafe','quiet']},
+
+  {name:'Scarlett', role:'香氛感官研究員',    emoji:'🕯️', kw:'Sensation · Craft',
+   hair:'#580808',skin:'#EEC8A8',top:'#7A1828',bot:'#480A18',
+   prefer:['quiet','office'], wander:['cafe','lounge','conf']},
+
+  {name:'Souling',  role:'身心靈專家',        emoji:'🔮', kw:'Intuition · Healing',
+   hair:'#2A0860',skin:'#CC9880',top:'#3A0870',bot:'#200448',
+   prefer:['quiet'],     wander:['lounge','cafe','gym']},
+
+  {name:'Summer',   role:'健康美容專家',      emoji:'🌸', kw:'Wellness · Glow',
+   hair:'#D87888',skin:'#F4D0C0',top:'#C06080',bot:'#803050',
+   prefer:['gym','office'], wander:['cafe','lounge','quiet']},
 ];
 
-const LOG_URL = "https://raw.githubusercontent.com/sssunwl/AIofficeSuni/main/office_log.json";
-let logData = [];
-let activeAgent = null;
+const agents = ADEFS.map((d,i)=>{
+  const sp=d.prefer[0];
+  const p=rndInZone(sp);
+  return{...d,
+    x:p.x,y:p.y,tx:p.x,ty:p.y,
+    state:'idle',
+    idleT:80+Math.random()*160,
+    wFrame:0,wTick:0,
+    bPhase:i*0.72,bY:0,
+    facing:1 // 1=right -1=left
+  };
+});
 
-/* ── Build desks ── */
-function buildDesks() {
-  const grid = document.getElementById("desk-grid");
-  AGENTS.filter(a => a.name !== "Sun").forEach(agent => {
-    const d = document.createElement("div");
-    d.className = "desk";
-    d.id = "desk-" + agent.name;
-    d.innerHTML = `
-      <span class="d-emoji">${agent.emoji}</span>
-      <div class="d-name">${agent.name}</div>
-      <div class="d-role">${agent.role}</div>
-      <div class="d-kw">${agent.kw}</div>
-      <span class="unread-dot"></span>
-    `;
-    d.onclick = () => openAgent(agent);
-    grid.appendChild(d);
-  });
+// ══════════════════════════════
+// LOG DATA
+// ══════════════════════════════
+const LOG_URL='https://raw.githubusercontent.com/sssunwl/AIofficeSuni/main/office_log.json';
+let logData=[];
+let activeName=null;
+
+async function fetchLog(){
+  try{
+    const r=await fetch(LOG_URL+'?t='+Date.now());
+    logData=await r.json();
+    document.getElementById('rft').textContent=
+      'LAST UPDATE: '+new Date().toLocaleTimeString('zh-TW');
+  }catch(e){}
 }
 
-/* ── Fetch log ── */
-async function fetchLog() {
-  try {
-    const r = await fetch(LOG_URL + "?t=" + Date.now());
-    logData = await r.json();
-    updateUnreadDots();
-    document.getElementById("last-refresh").textContent =
-      "上次更新：" + new Date().toLocaleTimeString("zh-TW");
-    if (activeAgent) renderPanel(activeAgent);
-  } catch(e) {
-    console.warn("無法取得 office_log.json", e);
+// ══════════════════════════════
+// MAP RENDERING
+// ══════════════════════════════
+// Precompute static map once
+let staticMapCanvas=null;
+function buildStaticMap(){
+  const sc=document.createElement('canvas');
+  sc.width=CW; sc.height=CH;
+  const sx=sc.getContext('2d');
+  sx.imageSmoothingEnabled=false;
+
+  // wall background
+  sx.fillStyle='#08080F';
+  sx.fillRect(0,0,CW,CH);
+
+  // zone floors
+  for(const[,z] of Object.entries(Z)){
+    sx.fillStyle=z.floor;
+    sx.fillRect(z.x*TS,z.y*TS,z.w*TS,z.h*TS);
+    // tile grid lines
+    sx.strokeStyle='rgba(0,0,0,0.07)';
+    sx.lineWidth=1;
+    for(let ty=z.y;ty<z.y+z.h;ty++)
+      for(let tx=z.x;tx<z.x+z.w;tx++)
+        sx.strokeRect(tx*TS+.5,ty*TS+.5,TS-1,TS-1);
+  }
+
+  // zone labels
+  sx.font='bold 8px monospace';
+  sx.textAlign='left';
+  for(const[,z] of Object.entries(Z)){
+    const dark=z.floor==='#1A3358'||z.floor==='#28180A';
+    sx.fillStyle=dark?'rgba(200,200,200,0.55)':'rgba(30,58,95,0.45)';
+    sx.fillText(z.label,z.x*TS+5,z.y*TS+13);
+  }
+
+  // ── FURNITURE ──
+  // Open office desks (2 rows)
+  const deskRows=[6,9,12];
+  const deskCols=[7,10,13,16,19,22];
+  for(const ty of deskRows) for(const tx of deskCols){
+    const dx=tx*TS,dy=ty*TS;
+    // desk body
+    sx.fillStyle='#C4B488'; sx.fillRect(dx+1,dy+8,TS-2,TS-12);
+    // desk surface
+    sx.fillStyle='#D8C89C'; sx.fillRect(dx+1,dy+8,TS-2,6);
+    // monitor
+    sx.fillStyle='#1C2C3C'; sx.fillRect(dx+8,dy-6,14,10);
+    sx.fillStyle='#2A4A6A'; sx.fillRect(dx+9,dy-5,12,8);
+    sx.fillStyle='#1C2020'; sx.fillRect(dx+13,dy+3,4,5);
+  }
+
+  // Café tables
+  [[1,6],[3,6],[1,9],[3,9],[1,11],[3,11]].forEach(([tx,ty])=>{
+    const dx=tx*TS,dy=ty*TS;
+    sx.fillStyle='#B87A40'; sx.fillRect(dx+4,dy+4,22,20);
+    sx.fillStyle='#C89060'; sx.fillRect(dx+4,dy+4,22,6);
+    sx.fillStyle='#6B2D0E'; sx.fillRect(dx+9,dy+10,7,8); // cup
+    sx.fillStyle='#C8956A'; sx.fillRect(dx+10,dy+10,5,3);
+  });
+
+  // Gym: treadmill
+  sx.fillStyle='#1C2C1C'; sx.fillRect(7*TS+4,TS+4,54,28);
+  sx.fillStyle='#2A4A2A'; sx.fillRect(7*TS+6,TS+8,50,16);
+  // weight rack
+  sx.fillStyle='#181818'; sx.fillRect(10*TS+4,4,32,16);
+  ['#B83030','#2858A0','#28A030','#A8A020','#A02880'].forEach((c,i)=>{
+    sx.fillStyle=c; sx.fillRect(10*TS+4+i*6+1,6,5,12);
+  });
+
+  // Conference table
+  sx.fillStyle='#50301A'; sx.fillRect(15*TS+4,TS+4,90,56);
+  sx.fillStyle='#6A4828'; sx.fillRect(15*TS+4,TS+4,90,10);
+  sx.fillStyle='#7A5838';
+  for(let i=0;i<4;i++) sx.fillRect(15*TS+6+i*22,TS+24,18,8);
+  for(let i=0;i<4;i++) sx.fillRect(15*TS+6+i*22,3*TS+4,18,8);
+
+  // Lounge couch
+  sx.fillStyle='#C89060'; sx.fillRect(23*TS+4,TS+20,58,32);
+  sx.fillStyle='#D8A878'; sx.fillRect(23*TS+4,TS+20,58,12);
+  // lounge plants
+  pxPlant(sx,23*TS-6,TS+4);
+  pxPlant(sx,28*TS+2,TS+4);
+
+  // Quiet: bookshelf
+  sx.fillStyle='#303848'; sx.fillRect(24*TS+4,5*TS+4,24,72);
+  ['#A82020','#2050A0','#20A050','#A0A020','#802080','#20A0A0','#C05020','#3040A0'].forEach((c,i)=>{
+    sx.fillStyle=c;
+    sx.fillRect(24*TS+4+i*3,5*TS+6,2,12);
+    sx.fillRect(24*TS+4+i*3,5*TS+22,2,12);
+    sx.fillRect(24*TS+4+i*3,5*TS+38,2,12);
+  });
+
+  // CEO desk (large)
+  sx.fillStyle='#0E1E30'; sx.fillRect(8*TS,15*TS+8,12*TS-2,3*TS-16);
+  sx.fillStyle='#1A3050'; sx.fillRect(8*TS,15*TS+8,12*TS-2,10);
+  sx.fillStyle='#C8956A'; sx.fillRect(11*TS+2,15*TS+14,28,6); // nameplate
+  pxPlant(sx,6*TS+4,14*TS+8);
+  pxPlant(sx,17*TS+8,14*TS+8);
+
+  staticMapCanvas=sc;
+}
+
+function pxPlant(sx,x,y){
+  sx.fillStyle='#7A3510'; sx.fillRect(x+2,y+16,10,10);
+  sx.fillStyle='#2A6A2A'; sx.fillRect(x+5,y+6,4,14);
+  sx.fillStyle='#3A8A3A'; sx.fillRect(x-2,y+2,12,10);
+  sx.fillStyle='#3A8A3A'; sx.fillRect(x+4,y-2,8,8);
+  sx.fillStyle='#288028'; sx.fillRect(x+3,y+5,5,5);
+}
+
+// ══════════════════════════════
+// CHARACTER RENDERING
+// ══════════════════════════════
+function drawAgent(ag,hl){
+  const x=Math.round(ag.x), y=Math.round(ag.y+ag.bY);
+
+  // shadow
+  ctx.fillStyle='rgba(0,0,0,.28)';
+  ctx.beginPath();
+  ctx.ellipse(x,y+3,11,4,0,0,Math.PI*2);
+  ctx.fill();
+
+  // selection ring
+  if(hl){
+    ctx.strokeStyle='#C8956A'; ctx.lineWidth=2;
+    ctx.beginPath();
+    ctx.ellipse(x,y+3,14,6,0,0,Math.PI*2);
+    ctx.stroke();
+  }
+
+  const wf=ag.state==='walking'&&ag.wFrame===1;
+
+  // HAIR
+  ctx.fillStyle=ag.hair;
+  ctx.fillRect(x-7,y-46,14,4);
+  ctx.fillRect(x-9,y-42,18,7);
+
+  // FACE
+  ctx.fillStyle=ag.skin;
+  ctx.fillRect(x-7,y-35,14,14);
+
+  // eyes
+  ctx.fillStyle='#14141E';
+  ctx.fillRect(x-4,y-29,3,3);
+  ctx.fillRect(x+1,y-29,3,3);
+
+  // blush (cute pixel art touch)
+  ctx.fillStyle=blush(ag.skin);
+  ctx.fillRect(x-6,y-25,3,2);
+  ctx.fillRect(x+3,y-25,3,2);
+
+  // BODY
+  ctx.fillStyle=ag.top;
+  ctx.fillRect(x-8,y-21,16,16);
+  ctx.fillRect(x-12,y-21,4,10); // L arm
+  ctx.fillRect(x+8, y-21,4,10); // R arm
+
+  // LEGS (walk animation)
+  ctx.fillStyle=ag.bot;
+  const l=wf?3:0, r=wf?0:3;
+  ctx.fillRect(x-7,y-5+l,6,11);
+  ctx.fillRect(x+1, y-5+r,6,11);
+
+  // NAME TAG
+  ctx.font='bold 8px monospace';
+  ctx.textAlign='center';
+  const lw=ctx.measureText(ag.name).width;
+  ctx.fillStyle=hl?'rgba(13,17,23,.92)':'rgba(13,17,23,.75)';
+  ctx.fillRect(x-lw/2-4,y-63,lw+8,12);
+  ctx.fillStyle=hl?'#C8956A':'#C8C0B0';
+  ctx.fillText(ag.name,x,y-53);
+}
+
+function blush(hex){
+  const r=parseInt(hex.slice(1,3),16);
+  return`rgba(${Math.min(255,r+30)},100,100,0.35)`;
+}
+
+// ══════════════════════════════
+// AGENT AI
+// ══════════════════════════════
+const SPD=1.3;
+
+function tickAgent(ag){
+  if(ag.state==='idle'){
+    ag.bY=Math.sin(Date.now()/480+ag.bPhase)*1.8;
+    if(--ag.idleT<=0) setTarget(ag);
+  } else {
+    ag.bY=0;
+    const dx=ag.tx-ag.x, dy=ag.ty-ag.y;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    if(d<SPD){
+      ag.x=ag.tx; ag.y=ag.ty;
+      ag.state='idle';
+      ag.idleT=120+Math.random()*220;
+    } else {
+      ag.x+=dx/d*SPD; ag.y+=dy/d*SPD;
+      ag.facing=dx>0?1:-1;
+    }
+    if(++ag.wTick%13===0) ag.wFrame^=1;
   }
 }
 
-function updateUnreadDots() {
-  AGENTS.forEach(a => {
-    const el = document.getElementById("desk-" + a.name);
-    if (!el) return;
-    const has = logData.some(e => e.participants && e.participants.includes(a.name));
-    el.classList.toggle("has-new", has);
-  });
+function setTarget(ag){
+  const pool=Math.random()<.65?ag.prefer:ag.wander;
+  const zone=pool[Math.floor(Math.random()*pool.length)];
+  const p=rndInZone(zone);
+  ag.tx=p.x; ag.ty=p.y;
+  ag.state='walking'; ag.wFrame=0; ag.wTick=0;
 }
 
-/* ── Open panel ── */
-function openAgent(agent) {
-  activeAgent = agent;
-  document.getElementById("panel-emoji").textContent = agent.emoji;
-  document.getElementById("panel-name").textContent  = agent.name;
-  document.getElementById("panel-role").textContent  = agent.role + " · " + agent.kw;
-  renderPanel(agent);
-  document.querySelectorAll(".desk").forEach(d => d.classList.remove("active"));
-  const desk = document.getElementById("desk-" + agent.name);
-  if (desk) desk.classList.add("active");
-  document.getElementById("chat-panel").classList.add("open");
-  document.getElementById("overlay").classList.add("show");
+// ══════════════════════════════
+// CLICK & HOVER
+// ══════════════════════════════
+function hitTest(mx,my){
+  for(const ag of agents){
+    const dx=mx-ag.x, dy=my-(ag.y+ag.bY);
+    if(Math.abs(dx)<13&&dy>-52&&dy<8) return ag;
+  }
+  return null;
 }
 
-function openCEO() {
-  openAgent(AGENTS.find(a => a.name === "Sun"));
-}
+canvas.addEventListener('click',e=>{
+  const r=canvas.getBoundingClientRect();
+  const ag=hitTest(e.clientX-r.left,e.clientY-r.top);
+  if(ag) openPanel(ag);
+});
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  canvas.style.cursor=hitTest(e.clientX-r.left,e.clientY-r.top)?'pointer':'default';
+});
 
-function closePanel() {
-  document.getElementById("chat-panel").classList.remove("open");
-  document.getElementById("overlay").classList.remove("show");
-  document.querySelectorAll(".desk").forEach(d => d.classList.remove("active"));
-  activeAgent = null;
-}
+// ══════════════════════════════
+// PANEL
+// ══════════════════════════════
+function openPanel(ag){
+  activeName=ag.name;
+  document.getElementById('pem').textContent=ag.emoji;
+  document.getElementById('pnm').textContent=ag.name;
+  document.getElementById('prl').textContent=ag.role+' · '+ag.kw;
 
-/* ── Render conversations ── */
-function renderPanel(agent) {
-  const body = document.getElementById("panel-body");
-  const convs = logData.filter(e => e.participants && e.participants.includes(agent.name));
+  const convs=logData.filter(e=>e.participants&&e.participants.includes(ag.name));
+  const pb=document.getElementById('pb');
 
-  if (!convs.length) {
-    body.innerHTML = `
-      <div class="empty-state">
-        <span class="empty-icon">${agent.emoji}</span>
-        ${agent.name} 還沒有對話記錄。<br>等下一次 15 分鐘觸發後再來看看。
-      </div>`;
-    return;
+  if(!convs.length){
+    pb.innerHTML=`<div class="empty">${ag.emoji}<br><br>${ag.name} 還沒有對話記錄。<br>等下一次 15 分鐘觸發後再來看。</div>`;
+  } else {
+    pb.innerHTML=convs.map(e=>{
+      const other=e.participants.find(n=>n!==ag.name)||'';
+      const odef=ADEFS.find(a=>a.name===other)||{emoji:'👤'};
+      const dt=new Date(e.time);
+      const ds=dt.toLocaleDateString('zh-TW',{month:'short',day:'numeric'});
+      const ts=dt.toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+      const turns=(e.turns||[]).map(t=>`
+        <div class="turn">
+          <div class="tn ${t.agent===ag.name?'s':''}">${t.agent}</div>
+          <div class="tt">${esc(t.text)}</div>
+        </div>`).join('');
+      return`<div class="cv">
+        <div class="cv-m"><span class="cv-w">${odef.emoji} 與 ${other}</span><span>${ds} ${ts}</span></div>
+        ${turns}</div>`;
+    }).join('');
   }
 
-  body.innerHTML = convs.map(entry => {
-    const other = entry.participants.find(n => n !== agent.name) || "";
-    const otherAgent = AGENTS.find(a => a.name === other) || { emoji: "👤" };
-    const dt = new Date(entry.time);
-    const dateStr = dt.toLocaleDateString("zh-TW", { month:"short", day:"numeric" });
-    const timeStr = dt.toLocaleTimeString("zh-TW", { hour:"2-digit", minute:"2-digit" });
-
-    const bubbles = (entry.turns || []).map(t => {
-      const isSelf = t.agent === agent.name;
-      return `<div class="bubble">
-        <div class="bubble-name ${isSelf ? "" : "other"}">${t.agent}</div>
-        <div class="bubble-text">${escHtml(t.text)}</div>
-      </div>`;
-    }).join("");
-
-    return `<div class="conv-card">
-      <div class="conv-meta">
-        <span class="conv-with">${otherAgent.emoji} 與 ${other}</span>
-        <span>${dateStr} ${timeStr}</span>
-      </div>
-      ${bubbles}
-    </div>`;
-  }).join("");
+  document.getElementById('panel').classList.add('open');
+  document.getElementById('ov').classList.add('show');
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+function closePanel(){
+  document.getElementById('panel').classList.remove('open');
+  document.getElementById('ov').classList.remove('show');
+  activeName=null;
 }
 
-/* ── Init ── */
-buildDesks();
+function esc(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ══════════════════════════════
+// GAME LOOP
+// ══════════════════════════════
+function loop(){
+  // Draw static map
+  ctx.drawImage(staticMapCanvas,0,0);
+
+  // Update + sort agents by Y (depth)
+  agents.forEach(tickAgent);
+  [...agents].sort((a,b)=>a.y-b.y)
+    .forEach(ag=>drawAgent(ag,ag.name===activeName));
+
+  requestAnimationFrame(loop);
+}
+
+// ══════════════════════════════
+// INIT
+// ══════════════════════════════
+buildStaticMap();
 fetchLog();
-setInterval(fetchLog, 5 * 60 * 1000); // refresh every 5 min
+setInterval(fetchLog,5*60*1000);
+loop();
 </script>
-
 </body>
 </html>
