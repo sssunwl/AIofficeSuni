@@ -254,12 +254,19 @@ const agents = ADEFS.map((d,i)=>{
 // ══════════════════════════════
 // SPRITE LOADING
 // ══════════════════════════════
-const FW=48, FH=48;  // frame size in sprite sheet
+const FW=48, FH=48;   // source frame size
+const DW=64, DH=64;   // display size (scaled up for clarity)
 const SPRITES={};
 agents.forEach(ag=>{
   const img=new Image();
   img.src=`assets/characters/agents/${ag.name}.png`;
   SPRITES[ag.name]=img;
+});
+
+// ── Tile Sheets ──
+const T={};
+['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32'].forEach(n=>{
+  const img=new Image(); img.src=`assets/tiles/${n}.png`; T[n]=img;
 });
 
 // ══════════════════════════════
@@ -314,69 +321,256 @@ function buildStaticMap(){
     sx.fillText(z.label,z.x*TS+5,z.y*TS+13);
   }
 
-  // ── FURNITURE ──
-  // Open office desks (2 rows)
-  const deskRows=[6,9,12];
-  const deskCols=[7,10,13,16,19,22];
-  for(const ty of deskRows) for(const tx of deskCols){
-    const dx=tx*TS,dy=ty*TS;
-    // desk body
-    sx.fillStyle='#C4B488'; sx.fillRect(dx+1,dy+8,TS-2,TS-12);
-    // desk surface
-    sx.fillStyle='#D8C89C'; sx.fillRect(dx+1,dy+8,TS-2,6);
-    // monitor
-    sx.fillStyle='#1C2C3C'; sx.fillRect(dx+8,dy-6,14,10);
-    sx.fillStyle='#2A4A6A'; sx.fillRect(dx+9,dy-5,12,8);
-    sx.fillStyle='#1C2020'; sx.fillRect(dx+13,dy+3,4,5);
+  // ── HELPERS ──
+  function plant(px,py){
+    sx.fillStyle='#7A3510'; sx.fillRect(px+5,py+18,7,7);
+    sx.fillStyle='#1E4A1A'; sx.fillRect(px+7,py+8,3,12);
+    sx.fillStyle='#2A6A24'; sx.fillRect(px+1,py+4,14,10);
+    sx.fillStyle='#38882E'; sx.fillRect(px+4,py,10,8);
+    sx.fillStyle='#308028'; sx.fillRect(px+2,py+8,6,8);
+  }
+  function palm(px,py){
+    sx.fillStyle='#7A4820'; sx.fillRect(px+13,py+22,5,26);
+    sx.fillStyle='#2A6820'; sx.fillRect(px-2,py+8,18,10);
+    sx.fillStyle='#389030'; sx.fillRect(px+4,py+2,18,10);
+    sx.fillStyle='#44A838'; sx.fillRect(px+10,py-2,14,8);
+    sx.fillStyle='#2A6820'; sx.fillRect(px+14,py+6,14,8);
+  }
+  function desk(tx,ty){
+    const x=tx*TS,y=ty*TS;
+    sx.fillStyle='rgba(0,0,0,.14)'; sx.fillRect(x+2,y+11,TS-2,TS-10);
+    sx.fillStyle='#BCA870'; sx.fillRect(x+1,y+8,TS-2,TS-10);
+    sx.fillStyle='#D4BC88'; sx.fillRect(x+1,y+8,TS-2,5);
+    sx.fillStyle='#9A8448'; sx.fillRect(x+2,y+29,4,3);
+    sx.fillStyle='#9A8448'; sx.fillRect(x+TS-6,y+29,4,3);
+    sx.fillStyle='#1A2230'; sx.fillRect(x+8,y-8,16,12);
+    sx.fillStyle='#3A6A9A'; sx.fillRect(x+9,y-7,14,9);
+    sx.fillStyle='rgba(80,160,220,.3)'; sx.fillRect(x+9,y-7,14,9);
+    sx.fillStyle='#182020'; sx.fillRect(x+13,y+3,6,5);
+    sx.fillStyle='#C8C0B0'; sx.fillRect(x+4,y+9,16,3);
   }
 
-  // Café tables
-  [[1,6],[3,6],[1,9],[3,9],[1,11],[3,11]].forEach(([tx,ty])=>{
+  // ── GYM (6-13 × 0-4) ──
+  for(let r=0;r<5;r++) for(let c=6;c<14;c++){
+    sx.fillStyle=(r+c)%2===0?'#1A1A1A':'#1E1E1E';
+    sx.fillRect(c*TS,r*TS,TS,TS);
+  }
+  // mirror on wall
+  sx.fillStyle='#B8C8CC'; sx.fillRect(7*TS,0,5*TS,6);
+  sx.fillStyle='rgba(200,230,240,.15)'; sx.fillRect(7*TS,0,5*TS,6);
+  // yoga mats
+  [[7,2,'#A02828'],[9,2,'#1A4890'],[11,2,'#1A7030']].forEach(([tx,ty,c])=>{
+    sx.fillStyle=c; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,TS+8);
+    sx.fillStyle='rgba(255,255,255,.18)'; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,3);
+  });
+  // treadmill
+  sx.fillStyle='#1C2818'; sx.fillRect(12*TS+2,TS+2,TS+12,TS-6);
+  sx.fillStyle='#263C22'; sx.fillRect(12*TS+4,TS+6,TS+8,16);
+  sx.fillStyle='#C03818'; sx.fillRect(12*TS+18,TS,16,6);
+  // dumbbell rack
+  sx.fillStyle='#141414'; sx.fillRect(6*TS+4,4,42,22);
+  sx.fillStyle='#202020'; sx.fillRect(6*TS+4,4,42,6);
+  ['#D02020','#2060B8','#20A038','#C09010','#9020A0'].forEach((c,i)=>{
+    sx.fillStyle=c; sx.fillRect(6*TS+6+i*8,7,6,14);
+    sx.fillStyle='rgba(255,255,255,.25)'; sx.fillRect(6*TS+6+i*8,7,6,3);
+  });
+
+  // ── CONFERENCE (14-21 × 0-4) ──
+  for(let r=0;r<5;r++) for(let c=14;c<22;c++){
+    sx.fillStyle=(r+c)%2===0?'#CAD4E0':'#C2CCDA';
+    sx.fillRect(c*TS,r*TS,TS,TS);
+  }
+  // projector screen
+  sx.fillStyle='#E8EEF4'; sx.fillRect(14*TS+40,4,5*TS-20,22);
+  sx.fillStyle='#D8E4EC'; sx.fillRect(14*TS+42,6,5*TS-24,16);
+  sx.fillStyle='#909090'; sx.fillRect(14*TS+100,0,12,6);
+  // conference table
+  const ctX=14*TS+20, ctY=TS;
+  sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(ctX+4,ctY+4,164,68);
+  sx.fillStyle='#6B4220'; sx.fillRect(ctX,ctY,164,68);
+  sx.fillStyle='#7E5230'; sx.fillRect(ctX,ctY,164,14);
+  sx.fillStyle='#C8956A'; sx.fillRect(ctX+62,ctY+28,40,5);
+  sx.fillStyle='rgba(200,149,106,.1)'; sx.fillRect(ctX,ctY,164,68);
+  // chairs top
+  [ctX+8,ctX+42,ctX+78,ctX+114,ctX+142].forEach(cx=>{
+    sx.fillStyle='#283858'; sx.fillRect(cx,ctY-12,20,12);
+    sx.fillStyle='#3A5080'; sx.fillRect(cx,ctY-12,20,5);
+  });
+  // chairs bottom
+  [ctX+8,ctX+42,ctX+78,ctX+114,ctX+142].forEach(cx=>{
+    sx.fillStyle='#283858'; sx.fillRect(cx,ctY+70,20,12);
+    sx.fillStyle='#3A5080'; sx.fillRect(cx,ctY+70,20,5);
+  });
+  // whiteboard
+  sx.fillStyle='#FFFFFF'; sx.fillRect(21*TS+2,TS,22,50);
+  sx.fillStyle='#EAF0F6'; sx.fillRect(21*TS+3,TS+1,20,48);
+  sx.strokeStyle='#B8C8D8'; sx.lineWidth=1;
+  [12,22,32].forEach(dy=>{ sx.beginPath(); sx.moveTo(21*TS+5,TS+dy); sx.lineTo(21*TS+21,TS+dy); sx.stroke(); });
+
+  // ── LOUNGE (22-29 × 0-4) ──
+  for(let r=0;r<5;r++) for(let c=22;c<30;c++){
+    sx.fillStyle=c%2===0?'#C8A868':'#B89858';
+    sx.fillRect(c*TS,r*TS,TS,TS);
+  }
+  // L-sofa
+  const sx0=22*TS+4;
+  sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(sx0+4,TS+26,124,44);
+  sx.fillStyle='#8090A8'; sx.fillRect(sx0,TS+22,124,42);
+  sx.fillStyle='#9AAAC0'; sx.fillRect(sx0,TS+22,124,12);
+  sx.fillStyle='#6878A0'; sx.fillRect(sx0,TS+60,124,4);
+  [sx0+8,sx0+44,sx0+80].forEach(cx=>{
+    sx.fillStyle='#8898B4'; sx.fillRect(cx,TS+30,28,18);
+    sx.fillStyle='#A8B8CC'; sx.fillRect(cx,TS+30,28,6);
+  });
+  // side arm of L
+  sx.fillStyle='#8090A8'; sx.fillRect(sx0,3*TS,50,42);
+  sx.fillStyle='#9AAAC0'; sx.fillRect(sx0,3*TS,50,12);
+  // coffee table
+  sx.fillStyle='rgba(0,0,0,.15)'; sx.fillRect(22*TS+136,TS+28,52,38);
+  sx.fillStyle='#A87840'; sx.fillRect(22*TS+134,TS+24,52,38);
+  sx.fillStyle='#C09050'; sx.fillRect(22*TS+134,TS+24,52,8);
+  // plants & shelf
+  palm(29*TS-24,4);
+  plant(22*TS+4,4);
+  sx.fillStyle='#2A2018'; sx.fillRect(29*TS-2,0,28,4*TS+4);
+  ['#C83030','#2860D0','#28B040','#D0A020','#9030C0','#28A0A0','#D06020'].forEach((c,i)=>{
+    sx.fillStyle=c; sx.fillRect(29*TS-1,2+i*18,6,14);
+  });
+
+  // ── CAFÉ (0-5 × 5-13) ──
+  for(let r=5;r<14;r++){
+    sx.fillStyle=r%2===0?'#D4A868':'#C89858';
+    sx.fillRect(0,r*TS,6*TS,TS);
+  }
+  // counter
+  sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(0,5*TS+3,6*TS,26);
+  sx.fillStyle='#6B3A18'; sx.fillRect(0,5*TS,6*TS,24);
+  sx.fillStyle='#7E4820'; sx.fillRect(0,5*TS,6*TS,8);
+  // coffee machine
+  sx.fillStyle='#181818'; sx.fillRect(2*TS+4,5*TS+8,24,14);
+  sx.fillStyle='#282828'; sx.fillRect(2*TS+6,5*TS+9,20,10);
+  sx.fillStyle='#E0A030'; sx.fillRect(2*TS+8,5*TS+12,6,5);
+  sx.fillStyle='#C0C0B8'; sx.fillRect(2*TS+16,5*TS+14,8,4);
+  // chalkboard
+  sx.fillStyle='#1A2818'; sx.fillRect(4*TS+2,5*TS+3,TS+14,22);
+  sx.fillStyle='#223020'; sx.fillRect(4*TS+3,5*TS+4,TS+12,20);
+  sx.strokeStyle='rgba(200,200,180,.45)'; sx.lineWidth=.8;
+  [9,14,19].forEach(dy=>{ sx.beginPath(); sx.moveTo(4*TS+5,5*TS+dy); sx.lineTo(4*TS+TS+13,5*TS+dy); sx.stroke(); });
+  // round café tables
+  [[1,7],[3,7],[1,10],[3,10],[1,12],[3,12]].forEach(([tx,ty])=>{
     const dx=tx*TS,dy=ty*TS;
-    sx.fillStyle='#B87A40'; sx.fillRect(dx+4,dy+4,22,20);
-    sx.fillStyle='#C89060'; sx.fillRect(dx+4,dy+4,22,6);
-    sx.fillStyle='#6B2D0E'; sx.fillRect(dx+9,dy+10,7,8); // cup
-    sx.fillStyle='#C8956A'; sx.fillRect(dx+10,dy+10,5,3);
+    sx.fillStyle='rgba(0,0,0,.2)';
+    sx.beginPath(); sx.ellipse(dx+14,dy+16,13,9,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#9A6030';
+    sx.beginPath(); sx.ellipse(dx+14,dy+14,12,8,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#B87840';
+    sx.beginPath(); sx.ellipse(dx+14,dy+13,12,4,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#EEEEEE'; sx.fillRect(dx+10,dy+10,5,5);
+    sx.fillStyle='#6B2D0E'; sx.fillRect(dx+11,dy+11,3,3);
+    sx.fillStyle='#8B5820'; sx.fillRect(dx+3,dy+20,9,8);
+    sx.fillStyle='#A87040'; sx.fillRect(dx+3,dy+20,9,3);
+    sx.fillStyle='#8B5820'; sx.fillRect(dx+18,dy+20,9,8);
+    sx.fillStyle='#A87040'; sx.fillRect(dx+18,dy+20,9,3);
   });
+  plant(6,5*TS+6*TS+4);
+  plant(6,5*TS+3*TS+4);
 
-  // Gym: treadmill
-  sx.fillStyle='#1C2C1C'; sx.fillRect(7*TS+4,TS+4,54,28);
-  sx.fillStyle='#2A4A2A'; sx.fillRect(7*TS+6,TS+8,50,16);
-  // weight rack
-  sx.fillStyle='#181818'; sx.fillRect(10*TS+4,4,32,16);
-  ['#B83030','#2858A0','#28A030','#A8A020','#A02880'].forEach((c,i)=>{
-    sx.fillStyle=c; sx.fillRect(10*TS+4+i*6+1,6,5,12);
+  // ── OPEN OFFICE (6-23 × 5-13) ──
+  [6,9,12].forEach(ty=>[7,10,13,16,19,22].forEach(tx=>desk(tx,ty)));
+  // plants between desk sections
+  [[11,5],[11,8],[11,11],[18,5],[18,8],[18,11]].forEach(([tx,ty])=>plant(tx*TS+8,ty*TS+6));
+  // water cooler
+  sx.fillStyle='#C8E0F0'; sx.fillRect(23*TS-6,6*TS+4,16,28);
+  sx.fillStyle='#A0C4DC'; sx.fillRect(23*TS-5,6*TS+5,14,14);
+  sx.fillStyle='rgba(80,160,220,.5)'; sx.fillRect(23*TS-5,6*TS+5,14,10);
+  sx.fillStyle='#2870B8'; sx.fillRect(23*TS-4,6*TS+22,12,6);
+  // printer
+  sx.fillStyle='#C0C0C0'; sx.fillRect(23*TS+4,12*TS+4,28,20);
+  sx.fillStyle='#DCDCDC'; sx.fillRect(23*TS+5,12*TS+5,26,9);
+  sx.fillStyle='#A0A0A8'; sx.fillRect(23*TS+5,12*TS+17,26,4);
+
+  // ── QUIET / SANCTUARY (24-29 × 5-13) ──
+  for(let r=5;r<14;r++) for(let c=24;c<30;c++){
+    sx.fillStyle=(r+c)%2===0?'#C8D0D8':'#C0C8D0';
+    sx.fillRect(c*TS,r*TS,TS,TS);
+  }
+  // bookshelves (2 columns)
+  [[24,5],[24,7],[24,9],[24,11]].forEach(([tx,ty])=>{
+    sx.fillStyle='#2A3040'; sx.fillRect(tx*TS+2,ty*TS+2,TS-4,TS-2);
+    sx.fillStyle='#36405A'; sx.fillRect(tx*TS+2,ty*TS+2,TS-4,4);
+    ['#C03030','#3060C0','#30A040','#C0A030','#8030C0','#28A0A0'].forEach((c,i)=>{
+      sx.fillStyle=c; sx.fillRect(tx*TS+3+i*5,ty*TS+7,4,TS-11);
+    });
   });
-
-  // Conference table
-  sx.fillStyle='#50301A'; sx.fillRect(15*TS+4,TS+4,90,56);
-  sx.fillStyle='#6A4828'; sx.fillRect(15*TS+4,TS+4,90,10);
-  sx.fillStyle='#7A5838';
-  for(let i=0;i<4;i++) sx.fillRect(15*TS+6+i*22,TS+24,18,8);
-  for(let i=0;i<4;i++) sx.fillRect(15*TS+6+i*22,3*TS+4,18,8);
-
-  // Lounge couch
-  sx.fillStyle='#C89060'; sx.fillRect(23*TS+4,TS+20,58,32);
-  sx.fillStyle='#D8A878'; sx.fillRect(23*TS+4,TS+20,58,12);
-  // lounge plants
-  pxPlant(sx,23*TS-6,TS+4);
-  pxPlant(sx,28*TS+2,TS+4);
-
-  // Quiet: bookshelf
-  sx.fillStyle='#303848'; sx.fillRect(24*TS+4,5*TS+4,24,72);
-  ['#A82020','#2050A0','#20A050','#A0A020','#802080','#20A0A0','#C05020','#3040A0'].forEach((c,i)=>{
-    sx.fillStyle=c;
-    sx.fillRect(24*TS+4+i*3,5*TS+6,2,12);
-    sx.fillRect(24*TS+4+i*3,5*TS+22,2,12);
-    sx.fillRect(24*TS+4+i*3,5*TS+38,2,12);
+  // meditation cushions
+  [[26,10],[27,10],[25,12],[28,11]].forEach(([tx,ty])=>{
+    const mx=tx*TS+8,my=ty*TS+10;
+    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(mx+2,my+2,16,12);
+    sx.fillStyle='#704880'; sx.fillRect(mx,my,16,12);
+    sx.fillStyle='#8A5A98'; sx.fillRect(mx,my,16,4);
+    sx.fillStyle='#C0A0D0'; sx.fillRect(mx+2,my+1,12,2);
   });
+  // lamp
+  sx.fillStyle='#A08040'; sx.fillRect(28*TS+12,10*TS+8,4,14);
+  sx.fillStyle='#E8D040'; sx.fillRect(28*TS+7,10*TS+3,14,8);
+  sx.fillStyle='rgba(255,240,100,.07)';
+  sx.beginPath(); sx.ellipse(28*TS+14,10*TS+12,22,16,0,0,Math.PI*2); sx.fill();
+  plant(29*TS-8,8*TS+4);
+  plant(29*TS-8,11*TS+4);
 
-  // CEO desk (large)
-  sx.fillStyle='#0E1E30'; sx.fillRect(8*TS,15*TS+8,12*TS-2,3*TS-16);
-  sx.fillStyle='#1A3050'; sx.fillRect(8*TS,15*TS+8,12*TS-2,10);
-  sx.fillStyle='#C8956A'; sx.fillRect(11*TS+2,15*TS+14,28,6); // nameplate
-  pxPlant(sx,6*TS+4,14*TS+8);
-  pxPlant(sx,17*TS+8,14*TS+8);
+  // ── CEO SUITE (6-17 × 14-17) ──
+  const ex=6*TS,ey=14*TS;
+  sx.fillStyle='rgba(0,0,0,.25)'; sx.fillRect(ex+30,ey+28,208,54);
+  sx.fillStyle='#0A1828'; sx.fillRect(ex+26,ey+22,208,52);
+  sx.fillStyle='#122840'; sx.fillRect(ex+26,ey+22,208,14);
+  sx.fillStyle='rgba(30,80,160,.25)'; sx.fillRect(ex+27,ey+22,206,3);
+  sx.fillStyle='#C8956A'; sx.fillRect(ex+88,ey+34,60,7);
+  sx.fillStyle='#B07850'; sx.fillRect(ex+88,ey+39,60,2);
+  // side panel
+  sx.fillStyle='#0E2038'; sx.fillRect(ex+26,ey+22,58,52);
+  sx.fillStyle='#1A3050'; sx.fillRect(ex+26,ey+22,58,14);
+  // monitor
+  sx.fillStyle='#0A1018'; sx.fillRect(ex+138,ey+8,42,24);
+  sx.fillStyle='rgba(30,120,200,.45)'; sx.fillRect(ex+139,ey+9,40,20);
+  sx.fillStyle='#182028'; sx.fillRect(ex+155,ey+32,8,4);
+  // visitor chairs
+  [[ex+78,ey+76],[ex+118,ey+76]].forEach(([cx,cy])=>{
+    sx.fillStyle='#1E3050'; sx.fillRect(cx,cy,28,18);
+    sx.fillStyle='#2A4468'; sx.fillRect(cx,cy,28,7);
+  });
+  // plants flanking
+  palm(ex-4,ey+2);
+  palm(11*TS+8,ey+2);
+  // award plaque
+  sx.fillStyle='#6A4818'; sx.fillRect(ex+188,ey+2,38,24);
+  sx.fillStyle='#C8B040'; sx.fillRect(ex+190,ey+4,34,20);
+  sx.fillStyle='#8A7020'; sx.fillRect(ex+192,ey+6,30,10);
+
+  // ── FOUNDER STUDIO (18-29 × 14-17) ──
+  const fx=18*TS,fy=14*TS;
+  sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(fx+22,fy+28,170,48);
+  sx.fillStyle='#1C100A'; sx.fillRect(fx+18,fy+22,170,46);
+  sx.fillStyle='#281810'; sx.fillRect(fx+18,fy+22,170,12);
+  // dual monitors
+  sx.fillStyle='#0A0808'; sx.fillRect(fx+38,fy+6,40,20);
+  sx.fillStyle='rgba(200,120,30,.4)'; sx.fillRect(fx+39,fy+7,38,16);
+  sx.fillStyle='#0A0808'; sx.fillRect(fx+88,fy+4,46,22);
+  sx.fillStyle='rgba(180,80,20,.35)'; sx.fillRect(fx+89,fy+5,44,18);
+  // mood board
+  sx.fillStyle='#3A2010'; sx.fillRect(fx+180,fy+2,62,38);
+  sx.fillStyle='#4A3020'; sx.fillRect(fx+181,fy+3,60,36);
+  ['#E03030','#2860D0','#28B040','#D0B020','#B030A0'].forEach((c,i)=>{
+    sx.fillStyle=c; sx.fillRect(fx+184+i*11,fy+6,9,12);
+    sx.fillStyle=c; sx.fillRect(fx+183+i*11,fy+22,10,12);
+  });
+  // armchair
+  sx.fillStyle='#382010'; sx.fillRect(fx+160,fy+68,36,26);
+  sx.fillStyle='#503020'; sx.fillRect(fx+160,fy+68,36,10);
+  sx.fillStyle='#704838'; sx.fillRect(fx+161,fy+69,34,8);
+  // plants
+  plant(fx-4,fy+4);
+  plant(fx+230,fy+4);
+  plant(fx+4,fy+3*TS-4);
 
   staticMapCanvas=sc;
 }
@@ -413,23 +607,22 @@ function drawAgent(ag,hl){
   if(img&&img.complete&&img.naturalWidth>0){
     // ── SPRITE RENDERING ──
     const isWalk=ag.state==='walking';
-    // Row 0 = idle (3 frames @ 500ms each), Row 1 = walk (4 frames @ 130ms each)
-    const sy=isWalk?FH:0;
-    const frameCount=isWalk?4:3;
-    const frameIdx=Math.floor(Date.now()/(isWalk?130:500))%frameCount;
+    // Row 0 = walk-south (front-facing). Always use this row so characters face viewer.
+    const sy=0;
+    const frameIdx=isWalk?Math.floor(Date.now()/130)%4:0;
     const sx=frameIdx*FW;
 
-    const drawX=x-FW/2;
-    const drawY=y-FH+4; // feet near y
+    const drawX=x-DW/2;
+    const drawY=y-DH+4;
 
     if(ag.facing===-1){
       ctx.save();
-      ctx.translate(drawX+FW,drawY);
+      ctx.translate(drawX+DW,drawY);
       ctx.scale(-1,1);
-      ctx.drawImage(img,sx,sy,FW,FH,0,0,FW,FH);
+      ctx.drawImage(img,sx,sy,FW,FH,0,0,DW,DH);
       ctx.restore();
     } else {
-      ctx.drawImage(img,sx,sy,FW,FH,drawX,drawY,FW,FH);
+      ctx.drawImage(img,sx,sy,FW,FH,drawX,drawY,DW,DH);
     }
   } else {
     // ── FALLBACK (sprite not yet loaded) ──
@@ -451,14 +644,14 @@ function drawAgent(ag,hl){
     ctx.fillRect(x+1,y-5+r,6,11);
   }
 
-  // NAME TAG (always shown)
+  // NAME TAG
   ctx.font='bold 8px monospace';
   ctx.textAlign='center';
   const lw=ctx.measureText(ag.name).width;
   ctx.fillStyle=hl?'rgba(13,17,23,.92)':'rgba(13,17,23,.75)';
-  ctx.fillRect(x-lw/2-4,y-FH-10,lw+8,12);
+  ctx.fillRect(x-lw/2-4,y-DH-10,lw+8,12);
   ctx.fillStyle=hl?'#C8956A':'#C8C0B0';
-  ctx.fillText(ag.name,x,y-FH);
+  ctx.fillText(ag.name,x,y-DH);
 }
 
 // ══════════════════════════════
@@ -500,7 +693,7 @@ function setTarget(ag){
 function hitTest(mx,my){
   for(const ag of agents){
     const dx=mx-ag.x, dy=my-(ag.y+ag.bY);
-    if(Math.abs(dx)<FW/2&&dy>-FH&&dy<6) return ag;
+    if(Math.abs(dx)<DW/2&&dy>-DH&&dy<6) return ag;
   }
   return null;
 }
@@ -565,10 +758,8 @@ function esc(s){
 // GAME LOOP
 // ══════════════════════════════
 function loop(){
-  // Draw static map
-  ctx.drawImage(staticMapCanvas,0,0);
+  if(staticMapCanvas) ctx.drawImage(staticMapCanvas,0,0);
 
-  // Update + sort agents by Y (depth)
   agents.forEach(tickAgent);
   [...agents].sort((a,b)=>a.y-b.y)
     .forEach(ag=>drawAgent(ag,ag.name===activeName));
@@ -579,10 +770,12 @@ function loop(){
 // ══════════════════════════════
 // INIT
 // ══════════════════════════════
-buildStaticMap();
+buildStaticMap(); // immediate pass (tiles may not be ready)
 fetchLog();
 setInterval(fetchLog,5*60*1000);
 loop();
+// Rebuild once tile sheets are loaded (adds gym mats, etc.)
+Promise.all(Object.values(T).map(img=>new Promise(r=>{img.onload=r;img.onerror=r;}))).then(buildStaticMap);
 </script>
 </body>
 </html>
