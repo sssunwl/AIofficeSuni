@@ -156,14 +156,27 @@ ctx.imageSmoothingEnabled = false;
 // ZONES
 // ══════════════════════════════
 const Z = {
-  cafe:    {x:0,  y:5,  w:6,  h:9,  floor:'#F2E2B8', label:'☕ Café'},
-  office:  {x:6,  y:5,  w:18, h:9,  floor:'#EDEAE0', label:'💻 Open Office'},
-  quiet:   {x:24, y:5,  w:6,  h:9,  floor:'#D0D8E8', label:'🌙 Sanctuary'},
-  gym:     {x:6,  y:0,  w:8,  h:5,  floor:'#C8E4C0', label:'🏋️ Zen Gym'},
-  conf:    {x:14, y:0,  w:8,  h:5,  floor:'#C8D8EE', label:'🗓 Conference'},
-  lounge:  {x:22, y:0,  w:8,  h:5,  floor:'#EEE0CC', label:'🌿 Lounge'},
-  ceo:     {x:6,  y:14, w:12, h:4,  floor:'#1A3358', label:'☀️ CEO Suite'},
-  founder: {x:18, y:14, w:12, h:4,  floor:'#28180A', label:'🌊 Founder Studio'},
+  // ── Left strip (x:0-4) ──
+  cafe:    {x:0, y:0,  w:5, h:4, floor:'#E8D4A0', label:'☕ Café'},
+  kitchen: {x:0, y:4,  w:5, h:4, floor:'#DFC99A', label:'🍱 Kitchen'},
+  snack:   {x:0, y:8,  w:5, h:3, floor:'#E2D8B2', label:'🍬 Social'},
+  game:    {x:0, y:11, w:5, h:3, floor:'#C8DEC8', label:'🎮 Game Room'},
+  theater: {x:0, y:14, w:5, h:4, floor:'#10101E', label:'🎬 Theater'},
+  // ── Center top (x:5-24, y:0-4) ──
+  gym:     {x:5,  y:0, w:7, h:5, floor:'#161616', label:'🏋️ Gym'},
+  conf:    {x:12, y:0, w:7, h:5, floor:'#C4CEDC', label:'📋 Conference'},
+  lounge:  {x:19, y:0, w:6, h:5, floor:'#D8C89A', label:'🌿 Lounge'},
+  // ── Center middle ──
+  office:  {x:5, y:5, w:20, h:9, floor:'#ECEAE2', label:'💻 Open Office'},
+  // ── Center bottom ──
+  ceo:     {x:5,  y:14, w:10, h:4, floor:'#0D1D36', label:'☀️ CEO Suite'},
+  studio:  {x:15, y:14, w:10, h:4, floor:'#180E06', label:'🌊 SS Studio'},
+  // ── Right strip (x:25-29) ──
+  souling: {x:25, y:0,  w:5, h:4, floor:'#1C1030', label:'🔮 Souling'},
+  consult: {x:25, y:4,  w:5, h:4, floor:'#D0D8E8', label:'💬 Consulting'},
+  aroma:   {x:25, y:8,  w:5, h:3, floor:'#F0E8E0', label:'🕯️ Aroma Lab'},
+  zen:     {x:25, y:11, w:5, h:3, floor:'#DFE8EC', label:'🌙 Zen Room'},
+  meditate:{x:25, y:14, w:5, h:4, floor:'#0A1420', label:'🧘 Meditation'},
 };
 
 // tile-zone lookup table
@@ -174,10 +187,11 @@ for(const[k,z] of Object.entries(Z))
       if(ty<TH&&tx<TW) zoneMap[ty][tx]=k;
 
 function rndInZone(name){
-  const z=Z[name], p=1.2;
+  const z=Z[name];
+  const px=Math.min(0.9,z.w*0.18), py=Math.min(0.9,z.h*0.18);
   return {
-    x:(z.x+p+Math.random()*(z.w-p*2))*TS,
-    y:(z.y+p+Math.random()*(z.h-p*2))*TS+TS*.6
+    x:(z.x+px+Math.random()*(z.w-px*2))*TS,
+    y:(z.y+py+Math.random()*(z.h-py*2))*TS+TS*.6
   };
 }
 
@@ -187,27 +201,27 @@ function rndInZone(name){
 const ADEFS=[
   {name:'Sun',      role:'CEO',              emoji:'☀️', kw:'Vision · Light',
    hair:'#B86800',skin:'#F0B870',top:'#1E3A5F',bot:'#142848',
-   prefer:['ceo'],     wander:['office','conf','lounge']},
+   prefer:['ceo'],          wander:['office','conf','lounge']},
 
   {name:'Sterling', role:'CFO',              emoji:'💰', kw:'Precision · Stability',
    hair:'#787878',skin:'#EDD8C0',top:'#3A3A4C',bot:'#252530',
-   prefer:['office'],   wander:['conf','cafe','ceo']},
+   prefer:['office'],        wander:['conf','cafe','ceo']},
 
   {name:'Steve',    role:'AI技術長',          emoji:'🤖', kw:'Intelligence · Future',
    hair:'#1A1A2A',skin:'#CCA070',top:'#1A4A8A',bot:'#0E2A4A',
-   prefer:['office'],   wander:['conf','gym','lounge']},
+   prefer:['office'],        wander:['conf','gym','lounge']},
 
   {name:'Stephanie',role:'創意策略總監',      emoji:'💡', kw:'Curiosity · Strategy',
    hair:'#6A2880',skin:'#EEC098',top:'#7A3A9A',bot:'#4A1860',
-   prefer:['office','lounge'], wander:['cafe','conf','quiet']},
+   prefer:['office','lounge'], wander:['cafe','conf','zen']},
 
   {name:'Scott',    role:'內容文字總監',      emoji:'✍️', kw:'Wit · Culture',
    hair:'#4A2810',skin:'#D09870',top:'#6A4828',bot:'#3C2818',
-   prefer:['office','cafe'], wander:['lounge','quiet','conf']},
+   prefer:['office','cafe'],  wander:['lounge','zen','conf']},
 
   {name:'Sunny',    role:'設計總監',          emoji:'🎨', kw:'Aesthetic · Order',
    hair:'#D87020',skin:'#F0C898',top:'#D86030',bot:'#903818',
-   prefer:['office','quiet'], wander:['cafe','lounge','conf']},
+   prefer:['office','zen'],   wander:['cafe','lounge','conf']},
 
   {name:'Sona',     role:'行銷社媒總監',      emoji:'📣', kw:'Energy · Connection',
    hair:'#801010',skin:'#E8A070',top:'#C02828',bot:'#780F0F',
@@ -215,27 +229,27 @@ const ADEFS=[
 
   {name:'Sosol',    role:'旅遊平台經理',      emoji:'✈️', kw:'Wanderlust · Discovery',
    hair:'#103820',skin:'#C08050',top:'#1A6858',bot:'#0A3830',
-   prefer:['office','lounge','cafe'], wander:['gym','quiet','conf']},
+   prefer:['lounge','cafe'],  wander:['gym','zen','conf']},
 
   {name:'Sean',     role:'收藏品研究員',      emoji:'🎯', kw:'Instinct · Hustle',
    hair:'#101010',skin:'#C89060',top:'#304020',bot:'#1A2810',
-   prefer:['office','quiet'], wander:['cafe','lounge','gym']},
+   prefer:['office','zen'],   wander:['cafe','lounge','game']},
 
   {name:'Saki',     role:'潛水専家',          emoji:'🤿', kw:'Depth · Calm',
    hair:'#C09830',skin:'#BE7238',top:'#186898',bot:'#083048',
-   prefer:['gym','office'], wander:['lounge','cafe','quiet']},
+   prefer:['gym','office'],   wander:['lounge','cafe','zen']},
 
   {name:'Scarlett', role:'香氛感官研究員',    emoji:'🕯️', kw:'Sensation · Craft',
    hair:'#580808',skin:'#EEC8A8',top:'#7A1828',bot:'#480A18',
-   prefer:['quiet','office'], wander:['cafe','lounge','conf']},
+   prefer:['aroma','office'], wander:['cafe','lounge','zen']},
 
   {name:'Souling',  role:'身心靈專家',        emoji:'🔮', kw:'Intuition · Healing',
    hair:'#2A0860',skin:'#CC9880',top:'#3A0870',bot:'#200448',
-   prefer:['quiet'],     wander:['lounge','cafe','gym']},
+   prefer:['souling','meditate'], wander:['lounge','cafe','zen']},
 
   {name:'Summer',   role:'健康美容專家',      emoji:'🌸', kw:'Wellness · Glow',
    hair:'#D87888',skin:'#F4D0C0',top:'#C06080',bot:'#803050',
-   prefer:['gym','office'], wander:['cafe','lounge','quiet']},
+   prefer:['gym','office'],   wander:['cafe','lounge','zen']},
 ];
 
 const agents = ADEFS.map((d,i)=>{
@@ -265,7 +279,7 @@ agents.forEach(ag=>{
 
 // ── Tile Sheets ──
 const T={};
-['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32'].forEach(n=>{
+['1_Generic_32x32','2_LivingRoom_32x32','8_Gym_32x32','13_Conference_Hall_32x32','Room_Builder_32x32'].forEach(n=>{
   const img=new Image(); img.src=`assets/tiles/${n}.png`; T[n]=img;
 });
 
@@ -296,32 +310,78 @@ function buildStaticMap(){
   const sx=sc.getContext('2d');
   sx.imageSmoothingEnabled=false;
 
-  // wall background
-  sx.fillStyle='#08080F';
+  // ── wall background (area between zones) ──
+  sx.fillStyle='#0A0A12';
   sx.fillRect(0,0,CW,CH);
 
-  // zone floors
+  // ── draw zone floors with Limezu Room_Builder tiles ──
+  const RB=T['Room_Builder_32x32'];
+  function floorTile(ftx,fty,zx,zy,zw,zh){
+    if(RB&&RB.complete&&RB.naturalWidth){
+      for(let r=zy;r<zy+zh;r++)
+        for(let c=zx;c<zx+zw;c++)
+          sx.drawImage(RB,ftx*TS,fty*TS,TS,TS,c*TS,r*TS,TS,TS);
+    }
+  }
+
+  // solid base for all zones
   for(const[,z] of Object.entries(Z)){
     sx.fillStyle=z.floor;
     sx.fillRect(z.x*TS,z.y*TS,z.w*TS,z.h*TS);
-    // tile grid lines
-    sx.strokeStyle='rgba(0,0,0,0.07)';
-    sx.lineWidth=1;
+  }
+  // Limezu floor tile overlays (ftx,fty = tile coord in Room_Builder sheet)
+  // Row 0 of Room_Builder = light wood planks
+  floorTile(0,0, Z.cafe.x,Z.cafe.y,Z.cafe.w,Z.cafe.h);
+  floorTile(1,0, Z.kitchen.x,Z.kitchen.y,Z.kitchen.w,Z.kitchen.h);
+  floorTile(2,0, Z.snack.x,Z.snack.y,Z.snack.w,Z.snack.h);
+  floorTile(3,0, Z.game.x,Z.game.y,Z.game.w,Z.game.h);
+  floorTile(0,2, Z.conf.x,Z.conf.y,Z.conf.w,Z.conf.h);
+  floorTile(2,2, Z.lounge.x,Z.lounge.y,Z.lounge.w,Z.lounge.h);
+  floorTile(1,0, Z.office.x,Z.office.y,Z.office.w,Z.office.h);
+  floorTile(1,2, Z.consult.x,Z.consult.y,Z.consult.w,Z.consult.h);
+  floorTile(0,2, Z.aroma.x,Z.aroma.y,Z.aroma.w,Z.aroma.h);
+  floorTile(2,2, Z.zen.x,Z.zen.y,Z.zen.w,Z.zen.h);
+
+  // subtle tile grid for light floors
+  sx.strokeStyle='rgba(0,0,0,0.06)'; sx.lineWidth=1;
+  ['cafe','kitchen','snack','game','conf','lounge','office','consult','aroma','zen'].forEach(k=>{
+    const z=Z[k];
     for(let ty=z.y;ty<z.y+z.h;ty++)
       for(let tx=z.x;tx<z.x+z.w;tx++)
         sx.strokeRect(tx*TS+.5,ty*TS+.5,TS-1,TS-1);
-  }
+  });
 
-  // zone labels
-  sx.font='bold 8px monospace';
-  sx.textAlign='left';
+  // ── zone border walls ──
+  sx.fillStyle='#0A0A12';
+  // left strip / center divider
+  sx.fillRect(5*TS-1,0,2,CH);
+  // center / right strip divider
+  sx.fillRect(25*TS-1,0,2,CH);
+  // center-top / office
+  sx.fillRect(5*TS,5*TS-1,20*TS,2);
+  // office / center-bottom
+  sx.fillRect(5*TS,14*TS-1,20*TS,2);
+  // gym/conf/lounge dividers (top row)
+  sx.fillRect(12*TS-1,0,2,5*TS);
+  sx.fillRect(19*TS-1,0,2,5*TS);
+  // ceo/studio divider
+  sx.fillRect(15*TS-1,14*TS,2,4*TS);
+  // left strip room dividers
+  [4,8,11,14].forEach(ty=>sx.fillRect(0,ty*TS-1,5*TS,2));
+  // right strip room dividers
+  [4,8,11,14].forEach(ty=>sx.fillRect(25*TS,ty*TS-1,5*TS,2));
+
+  // ── zone labels ──
+  sx.font='bold 7px monospace'; sx.textAlign='left';
   for(const[,z] of Object.entries(Z)){
-    const dark=z.floor==='#1A3358'||z.floor==='#28180A';
-    sx.fillStyle=dark?'rgba(200,200,200,0.55)':'rgba(30,58,95,0.45)';
-    sx.fillText(z.label,z.x*TS+5,z.y*TS+13);
+    const lx=parseInt(z.floor,16),
+          dark=(lx<0x404040)||(z.floor[1]==='0'&&z.floor[3]<='2');
+    sx.fillStyle=dark?'rgba(180,180,200,0.45)':'rgba(30,58,95,0.42)';
+    sx.fillText(z.label,z.x*TS+4,z.y*TS+12);
   }
 
-  // ── HELPERS ──
+  // ══ FURNITURE HELPERS ══
+  // ── helpers ──
   function plant(px,py){
     sx.fillStyle='#7A3510'; sx.fillRect(px+5,py+18,7,7);
     sx.fillStyle='#1E4A1A'; sx.fillRect(px+7,py+8,3,12);
@@ -349,228 +409,436 @@ function buildStaticMap(){
     sx.fillStyle='#182020'; sx.fillRect(x+13,y+3,6,5);
     sx.fillStyle='#C8C0B0'; sx.fillRect(x+4,y+9,16,3);
   }
-
-  // ── GYM (6-13 × 0-4) ──
-  for(let r=0;r<5;r++) for(let c=6;c<14;c++){
-    sx.fillStyle=(r+c)%2===0?'#1A1A1A':'#1E1E1E';
-    sx.fillRect(c*TS,r*TS,TS,TS);
-  }
-  // mirror on wall
-  sx.fillStyle='#B8C8CC'; sx.fillRect(7*TS,0,5*TS,6);
-  sx.fillStyle='rgba(200,230,240,.15)'; sx.fillRect(7*TS,0,5*TS,6);
-  // yoga mats
-  [[7,2,'#A02828'],[9,2,'#1A4890'],[11,2,'#1A7030']].forEach(([tx,ty,c])=>{
-    sx.fillStyle=c; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,TS+8);
-    sx.fillStyle='rgba(255,255,255,.18)'; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,3);
-  });
-  // treadmill
-  sx.fillStyle='#1C2818'; sx.fillRect(12*TS+2,TS+2,TS+12,TS-6);
-  sx.fillStyle='#263C22'; sx.fillRect(12*TS+4,TS+6,TS+8,16);
-  sx.fillStyle='#C03818'; sx.fillRect(12*TS+18,TS,16,6);
-  // dumbbell rack
-  sx.fillStyle='#141414'; sx.fillRect(6*TS+4,4,42,22);
-  sx.fillStyle='#202020'; sx.fillRect(6*TS+4,4,42,6);
-  ['#D02020','#2060B8','#20A038','#C09010','#9020A0'].forEach((c,i)=>{
-    sx.fillStyle=c; sx.fillRect(6*TS+6+i*8,7,6,14);
-    sx.fillStyle='rgba(255,255,255,.25)'; sx.fillRect(6*TS+6+i*8,7,6,3);
-  });
-
-  // ── CONFERENCE (14-21 × 0-4) ──
-  for(let r=0;r<5;r++) for(let c=14;c<22;c++){
-    sx.fillStyle=(r+c)%2===0?'#CAD4E0':'#C2CCDA';
-    sx.fillRect(c*TS,r*TS,TS,TS);
-  }
-  // projector screen
-  sx.fillStyle='#E8EEF4'; sx.fillRect(14*TS+40,4,5*TS-20,22);
-  sx.fillStyle='#D8E4EC'; sx.fillRect(14*TS+42,6,5*TS-24,16);
-  sx.fillStyle='#909090'; sx.fillRect(14*TS+100,0,12,6);
-  // conference table
-  const ctX=14*TS+20, ctY=TS;
-  sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(ctX+4,ctY+4,164,68);
-  sx.fillStyle='#6B4220'; sx.fillRect(ctX,ctY,164,68);
-  sx.fillStyle='#7E5230'; sx.fillRect(ctX,ctY,164,14);
-  sx.fillStyle='#C8956A'; sx.fillRect(ctX+62,ctY+28,40,5);
-  sx.fillStyle='rgba(200,149,106,.1)'; sx.fillRect(ctX,ctY,164,68);
-  // chairs top
-  [ctX+8,ctX+42,ctX+78,ctX+114,ctX+142].forEach(cx=>{
-    sx.fillStyle='#283858'; sx.fillRect(cx,ctY-12,20,12);
-    sx.fillStyle='#3A5080'; sx.fillRect(cx,ctY-12,20,5);
-  });
-  // chairs bottom
-  [ctX+8,ctX+42,ctX+78,ctX+114,ctX+142].forEach(cx=>{
-    sx.fillStyle='#283858'; sx.fillRect(cx,ctY+70,20,12);
-    sx.fillStyle='#3A5080'; sx.fillRect(cx,ctY+70,20,5);
-  });
-  // whiteboard
-  sx.fillStyle='#FFFFFF'; sx.fillRect(21*TS+2,TS,22,50);
-  sx.fillStyle='#EAF0F6'; sx.fillRect(21*TS+3,TS+1,20,48);
-  sx.strokeStyle='#B8C8D8'; sx.lineWidth=1;
-  [12,22,32].forEach(dy=>{ sx.beginPath(); sx.moveTo(21*TS+5,TS+dy); sx.lineTo(21*TS+21,TS+dy); sx.stroke(); });
-
-  // ── LOUNGE (22-29 × 0-4) ──
-  for(let r=0;r<5;r++) for(let c=22;c<30;c++){
-    sx.fillStyle=c%2===0?'#C8A868':'#B89858';
-    sx.fillRect(c*TS,r*TS,TS,TS);
-  }
-  // L-sofa
-  const sx0=22*TS+4;
-  sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(sx0+4,TS+26,124,44);
-  sx.fillStyle='#8090A8'; sx.fillRect(sx0,TS+22,124,42);
-  sx.fillStyle='#9AAAC0'; sx.fillRect(sx0,TS+22,124,12);
-  sx.fillStyle='#6878A0'; sx.fillRect(sx0,TS+60,124,4);
-  [sx0+8,sx0+44,sx0+80].forEach(cx=>{
-    sx.fillStyle='#8898B4'; sx.fillRect(cx,TS+30,28,18);
-    sx.fillStyle='#A8B8CC'; sx.fillRect(cx,TS+30,28,6);
-  });
-  // side arm of L
-  sx.fillStyle='#8090A8'; sx.fillRect(sx0,3*TS,50,42);
-  sx.fillStyle='#9AAAC0'; sx.fillRect(sx0,3*TS,50,12);
-  // coffee table
-  sx.fillStyle='rgba(0,0,0,.15)'; sx.fillRect(22*TS+136,TS+28,52,38);
-  sx.fillStyle='#A87840'; sx.fillRect(22*TS+134,TS+24,52,38);
-  sx.fillStyle='#C09050'; sx.fillRect(22*TS+134,TS+24,52,8);
-  // plants & shelf
-  palm(29*TS-24,4);
-  plant(22*TS+4,4);
-  sx.fillStyle='#2A2018'; sx.fillRect(29*TS-2,0,28,4*TS+4);
-  ['#C83030','#2860D0','#28B040','#D0A020','#9030C0','#28A0A0','#D06020'].forEach((c,i)=>{
-    sx.fillStyle=c; sx.fillRect(29*TS-1,2+i*18,6,14);
-  });
-
-  // ── CAFÉ (0-5 × 5-13) ──
-  for(let r=5;r<14;r++){
-    sx.fillStyle=r%2===0?'#D4A868':'#C89858';
-    sx.fillRect(0,r*TS,6*TS,TS);
-  }
-  // counter
-  sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(0,5*TS+3,6*TS,26);
-  sx.fillStyle='#6B3A18'; sx.fillRect(0,5*TS,6*TS,24);
-  sx.fillStyle='#7E4820'; sx.fillRect(0,5*TS,6*TS,8);
-  // coffee machine
-  sx.fillStyle='#181818'; sx.fillRect(2*TS+4,5*TS+8,24,14);
-  sx.fillStyle='#282828'; sx.fillRect(2*TS+6,5*TS+9,20,10);
-  sx.fillStyle='#E0A030'; sx.fillRect(2*TS+8,5*TS+12,6,5);
-  sx.fillStyle='#C0C0B8'; sx.fillRect(2*TS+16,5*TS+14,8,4);
-  // chalkboard
-  sx.fillStyle='#1A2818'; sx.fillRect(4*TS+2,5*TS+3,TS+14,22);
-  sx.fillStyle='#223020'; sx.fillRect(4*TS+3,5*TS+4,TS+12,20);
-  sx.strokeStyle='rgba(200,200,180,.45)'; sx.lineWidth=.8;
-  [9,14,19].forEach(dy=>{ sx.beginPath(); sx.moveTo(4*TS+5,5*TS+dy); sx.lineTo(4*TS+TS+13,5*TS+dy); sx.stroke(); });
-  // round café tables
-  [[1,7],[3,7],[1,10],[3,10],[1,12],[3,12]].forEach(([tx,ty])=>{
-    const dx=tx*TS,dy=ty*TS;
+  function roundTable(px,py){
     sx.fillStyle='rgba(0,0,0,.2)';
-    sx.beginPath(); sx.ellipse(dx+14,dy+16,13,9,0,0,Math.PI*2); sx.fill();
+    sx.beginPath(); sx.ellipse(px+13,py+15,13,9,0,0,Math.PI*2); sx.fill();
     sx.fillStyle='#9A6030';
-    sx.beginPath(); sx.ellipse(dx+14,dy+14,12,8,0,0,Math.PI*2); sx.fill();
+    sx.beginPath(); sx.ellipse(px+13,py+13,12,8,0,0,Math.PI*2); sx.fill();
     sx.fillStyle='#B87840';
-    sx.beginPath(); sx.ellipse(dx+14,dy+13,12,4,0,0,Math.PI*2); sx.fill();
-    sx.fillStyle='#EEEEEE'; sx.fillRect(dx+10,dy+10,5,5);
-    sx.fillStyle='#6B2D0E'; sx.fillRect(dx+11,dy+11,3,3);
-    sx.fillStyle='#8B5820'; sx.fillRect(dx+3,dy+20,9,8);
-    sx.fillStyle='#A87040'; sx.fillRect(dx+3,dy+20,9,3);
-    sx.fillStyle='#8B5820'; sx.fillRect(dx+18,dy+20,9,8);
-    sx.fillStyle='#A87040'; sx.fillRect(dx+18,dy+20,9,3);
-  });
-  plant(6,5*TS+6*TS+4);
-  plant(6,5*TS+3*TS+4);
-
-  // ── OPEN OFFICE (6-23 × 5-13) ──
-  [6,9,12].forEach(ty=>[7,10,13,16,19,22].forEach(tx=>desk(tx,ty)));
-  // plants between desk sections
-  [[11,5],[11,8],[11,11],[18,5],[18,8],[18,11]].forEach(([tx,ty])=>plant(tx*TS+8,ty*TS+6));
-  // water cooler
-  sx.fillStyle='#C8E0F0'; sx.fillRect(23*TS-6,6*TS+4,16,28);
-  sx.fillStyle='#A0C4DC'; sx.fillRect(23*TS-5,6*TS+5,14,14);
-  sx.fillStyle='rgba(80,160,220,.5)'; sx.fillRect(23*TS-5,6*TS+5,14,10);
-  sx.fillStyle='#2870B8'; sx.fillRect(23*TS-4,6*TS+22,12,6);
-  // printer
-  sx.fillStyle='#C0C0C0'; sx.fillRect(23*TS+4,12*TS+4,28,20);
-  sx.fillStyle='#DCDCDC'; sx.fillRect(23*TS+5,12*TS+5,26,9);
-  sx.fillStyle='#A0A0A8'; sx.fillRect(23*TS+5,12*TS+17,26,4);
-
-  // ── QUIET / SANCTUARY (24-29 × 5-13) ──
-  for(let r=5;r<14;r++) for(let c=24;c<30;c++){
-    sx.fillStyle=(r+c)%2===0?'#C8D0D8':'#C0C8D0';
-    sx.fillRect(c*TS,r*TS,TS,TS);
+    sx.beginPath(); sx.ellipse(px+13,py+12,12,4,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#EEE'; sx.fillRect(px+9,py+9,5,5);
+    sx.fillStyle='#6B2D0E'; sx.fillRect(px+10,py+10,3,3);
   }
-  // bookshelves (2 columns)
-  [[24,5],[24,7],[24,9],[24,11]].forEach(([tx,ty])=>{
-    sx.fillStyle='#2A3040'; sx.fillRect(tx*TS+2,ty*TS+2,TS-4,TS-2);
-    sx.fillStyle='#36405A'; sx.fillRect(tx*TS+2,ty*TS+2,TS-4,4);
-    ['#C03030','#3060C0','#30A040','#C0A030','#8030C0','#28A0A0'].forEach((c,i)=>{
-      sx.fillStyle=c; sx.fillRect(tx*TS+3+i*5,ty*TS+7,4,TS-11);
+  function chair(px,py){
+    sx.fillStyle='#8B5820'; sx.fillRect(px,py,9,8);
+    sx.fillStyle='#A87040'; sx.fillRect(px,py,9,3);
+  }
+  function cushion(px,py,col){
+    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(px+2,py+2,16,12);
+    sx.fillStyle=col; sx.fillRect(px,py,16,12);
+    const [r,g,b]=col.match(/\w\w/g).map(h=>parseInt(h,16));
+    sx.fillStyle=`rgba(${Math.min(r+40,255)},${Math.min(g+40,255)},${Math.min(b+40,255)},1)`;
+    sx.fillRect(px,py,16,4);
+    sx.fillStyle='rgba(255,255,255,.15)'; sx.fillRect(px+2,py+1,12,2);
+  }
+
+  // ═══════════════════════════════════════════════
+  // LEFT STRIP  (x:0-4, 160px wide)
+  // ═══════════════════════════════════════════════
+
+  // ── Café (y:0-3) ──
+  { const zx=0,zy=0,yw=5*TS,yh=4*TS;
+    // counter along top wall
+    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(zx,zy+2,yw,22);
+    sx.fillStyle='#6B3A18'; sx.fillRect(zx,zy,yw,20);
+    sx.fillStyle='#7E4820'; sx.fillRect(zx,zy,yw,7);
+    // espresso machine
+    sx.fillStyle='#1A1A1A'; sx.fillRect(zx+58,zy+7,22,12);
+    sx.fillStyle='#303030'; sx.fillRect(zx+60,zy+8,18,9);
+    sx.fillStyle='#E0A030'; sx.fillRect(zx+62,zy+10,5,5);
+    sx.fillStyle='#B0B0A0'; sx.fillRect(zx+70,zy+13,8,3);
+    // chalkboard
+    sx.fillStyle='#1A2818'; sx.fillRect(zx+96,zy+3,54,18);
+    sx.fillStyle='#223020'; sx.fillRect(zx+97,zy+4,52,16);
+    sx.strokeStyle='rgba(200,200,180,.4)'; sx.lineWidth=.8;
+    [8,12,16].forEach(dy=>{ sx.beginPath(); sx.moveTo(zx+99,zy+dy); sx.lineTo(zx+147,zy+dy); sx.stroke(); });
+    // round tables
+    [[1,2],[3,2]].forEach(([tx,ty])=>{ roundTable(tx*TS+2,ty*TS+4); chair(tx*TS+2,ty*TS+18); chair(tx*TS+16,ty*TS+18); });
+    plant(zx+2,zy+yh-26);
+    plant(zx+118,zy+yh-26);
+  }
+
+  // ── Kitchen (y:4-7) ──
+  { const zx=0,zy=4*TS;
+    // counter along top
+    sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(zx,zy+2,5*TS,20);
+    sx.fillStyle='#5A4020'; sx.fillRect(zx,zy,5*TS,18);
+    sx.fillStyle='#7A5830'; sx.fillRect(zx,zy,5*TS,6);
+    // stove (left)
+    sx.fillStyle='#202020'; sx.fillRect(zx+4,zy+6,22,12);
+    ['#E83030','#E87030'].forEach((c,i)=>{ sx.fillStyle=c; sx.beginPath(); sx.ellipse(zx+10+i*10,zy+12,5,4,0,0,Math.PI*2); sx.fill(); });
+    // fridge (right)
+    sx.fillStyle='#D0D4D8'; sx.fillRect(zx+106,zy+2,44,28);
+    sx.fillStyle='#B8BCC0'; sx.fillRect(zx+106,zy+2,44,12);
+    sx.fillStyle='#6A7078'; sx.fillRect(zx+118,zy+9,6,4);
+    // dining table
+    sx.fillStyle='rgba(0,0,0,.15)'; sx.fillRect(zx+30,zy+36,96,40);
+    sx.fillStyle='#A07840'; sx.fillRect(zx+28,zy+33,96,40);
+    sx.fillStyle='#C09050'; sx.fillRect(zx+28,zy+33,96,9);
+    // bar stools
+    [[26,54],[68,54],[108,54]].forEach(([px,py])=>{
+      sx.fillStyle='#806040'; sx.fillRect(zx+px,zy+py,18,8);
+      sx.fillStyle='#A08050'; sx.fillRect(zx+px,zy+py,18,4);
     });
-  });
-  // meditation cushions
-  [[26,10],[27,10],[25,12],[28,11]].forEach(([tx,ty])=>{
-    const mx=tx*TS+8,my=ty*TS+10;
-    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(mx+2,my+2,16,12);
-    sx.fillStyle='#704880'; sx.fillRect(mx,my,16,12);
-    sx.fillStyle='#8A5A98'; sx.fillRect(mx,my,16,4);
-    sx.fillStyle='#C0A0D0'; sx.fillRect(mx+2,my+1,12,2);
-  });
-  // lamp
-  sx.fillStyle='#A08040'; sx.fillRect(28*TS+12,10*TS+8,4,14);
-  sx.fillStyle='#E8D040'; sx.fillRect(28*TS+7,10*TS+3,14,8);
-  sx.fillStyle='rgba(255,240,100,.07)';
-  sx.beginPath(); sx.ellipse(28*TS+14,10*TS+12,22,16,0,0,Math.PI*2); sx.fill();
-  plant(29*TS-8,8*TS+4);
-  plant(29*TS-8,11*TS+4);
+  }
 
-  // ── CEO SUITE (6-17 × 14-17) ──
-  const ex=6*TS,ey=14*TS;
-  sx.fillStyle='rgba(0,0,0,.25)'; sx.fillRect(ex+30,ey+28,208,54);
-  sx.fillStyle='#0A1828'; sx.fillRect(ex+26,ey+22,208,52);
-  sx.fillStyle='#122840'; sx.fillRect(ex+26,ey+22,208,14);
-  sx.fillStyle='rgba(30,80,160,.25)'; sx.fillRect(ex+27,ey+22,206,3);
-  sx.fillStyle='#C8956A'; sx.fillRect(ex+88,ey+34,60,7);
-  sx.fillStyle='#B07850'; sx.fillRect(ex+88,ey+39,60,2);
-  // side panel
-  sx.fillStyle='#0E2038'; sx.fillRect(ex+26,ey+22,58,52);
-  sx.fillStyle='#1A3050'; sx.fillRect(ex+26,ey+22,58,14);
-  // monitor
-  sx.fillStyle='#0A1018'; sx.fillRect(ex+138,ey+8,42,24);
-  sx.fillStyle='rgba(30,120,200,.45)'; sx.fillRect(ex+139,ey+9,40,20);
-  sx.fillStyle='#182028'; sx.fillRect(ex+155,ey+32,8,4);
-  // visitor chairs
-  [[ex+78,ey+76],[ex+118,ey+76]].forEach(([cx,cy])=>{
-    sx.fillStyle='#1E3050'; sx.fillRect(cx,cy,28,18);
-    sx.fillStyle='#2A4468'; sx.fillRect(cx,cy,28,7);
-  });
-  // plants flanking
-  palm(ex-4,ey+2);
-  palm(11*TS+8,ey+2);
-  // award plaque
-  sx.fillStyle='#6A4818'; sx.fillRect(ex+188,ey+2,38,24);
-  sx.fillStyle='#C8B040'; sx.fillRect(ex+190,ey+4,34,20);
-  sx.fillStyle='#8A7020'; sx.fillRect(ex+192,ey+6,30,10);
+  // ── Snack / Social (y:8-10) ──
+  { const zx=0,zy=8*TS;
+    // snack shelf along right wall
+    sx.fillStyle='#5A4020'; sx.fillRect(zx+126,zy,28,3*TS);
+    sx.fillStyle='#7A5830'; sx.fillRect(zx+126,zy,28,6);
+    ['#E83030','#3870E0','#38C060','#E0B030','#C038C0','#38C0C0'].forEach((c,i)=>{
+      sx.fillStyle=c; sx.fillRect(zx+128,zy+4+i*14,24,10);
+      sx.fillStyle='rgba(255,255,255,.2)'; sx.fillRect(zx+128,zy+4+i*14,24,3);
+    });
+    // vending machine
+    sx.fillStyle='#1A2040'; sx.fillRect(zx+94,zy+4,28,3*TS-8);
+    sx.fillStyle='#2A3060'; sx.fillRect(zx+95,zy+5,26,3*TS-12);
+    sx.fillStyle='rgba(100,160,255,.4)'; sx.fillRect(zx+96,zy+8,24,20);
+    sx.fillStyle='#E04040'; sx.fillRect(zx+104,zy+34,10,6);
+    // stools
+    [[10,50],[40,50],[70,50]].forEach(([px,py])=>{ sx.fillStyle='#806040'; sx.fillRect(zx+px,zy+py,16,26); sx.fillStyle='#A08050'; sx.fillRect(zx+px,zy+py,16,5); });
+    plant(zx+4,zy+4);
+  }
 
-  // ── FOUNDER STUDIO (18-29 × 14-17) ──
-  const fx=18*TS,fy=14*TS;
-  sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(fx+22,fy+28,170,48);
-  sx.fillStyle='#1C100A'; sx.fillRect(fx+18,fy+22,170,46);
-  sx.fillStyle='#281810'; sx.fillRect(fx+18,fy+22,170,12);
-  // dual monitors
-  sx.fillStyle='#0A0808'; sx.fillRect(fx+38,fy+6,40,20);
-  sx.fillStyle='rgba(200,120,30,.4)'; sx.fillRect(fx+39,fy+7,38,16);
-  sx.fillStyle='#0A0808'; sx.fillRect(fx+88,fy+4,46,22);
-  sx.fillStyle='rgba(180,80,20,.35)'; sx.fillRect(fx+89,fy+5,44,18);
-  // mood board
-  sx.fillStyle='#3A2010'; sx.fillRect(fx+180,fy+2,62,38);
-  sx.fillStyle='#4A3020'; sx.fillRect(fx+181,fy+3,60,36);
-  ['#E03030','#2860D0','#28B040','#D0B020','#B030A0'].forEach((c,i)=>{
-    sx.fillStyle=c; sx.fillRect(fx+184+i*11,fy+6,9,12);
-    sx.fillStyle=c; sx.fillRect(fx+183+i*11,fy+22,10,12);
-  });
-  // armchair
-  sx.fillStyle='#382010'; sx.fillRect(fx+160,fy+68,36,26);
-  sx.fillStyle='#503020'; sx.fillRect(fx+160,fy+68,36,10);
-  sx.fillStyle='#704838'; sx.fillRect(fx+161,fy+69,34,8);
-  // plants
-  plant(fx-4,fy+4);
-  plant(fx+230,fy+4);
-  plant(fx+4,fy+3*TS-4);
+  // ── Game Room (y:11-13) ──
+  { const zx=0,zy=11*TS;
+    // TV screen
+    sx.fillStyle='#101018'; sx.fillRect(zx+4,zy+4,88,56);
+    sx.fillStyle='#181828'; sx.fillRect(zx+5,zy+5,86,54);
+    sx.fillStyle='rgba(40,80,200,.6)'; sx.fillRect(zx+6,zy+6,84,52);
+    sx.fillStyle='rgba(255,255,255,.3)'; sx.fillRect(zx+6,zy+6,30,20);
+    sx.fillStyle='#080810'; sx.fillRect(zx+36,zy+60,26,6);
+    sx.fillStyle='#101018'; sx.fillRect(zx+26,zy+66,46,4);
+    // couch
+    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(zx+2,zy+74,96,28);
+    sx.fillStyle='#48607A'; sx.fillRect(zx+2,zy+70,96,28);
+    sx.fillStyle='#5A7890'; sx.fillRect(zx+2,zy+70,96,10);
+    [16,52].forEach(px=>{ sx.fillStyle='#506888'; sx.fillRect(zx+px,zy+76,22,14); sx.fillStyle='#7090A8'; sx.fillRect(zx+px,zy+76,22,5); });
+    // controllers on floor
+    [[12,68],[36,68]].forEach(([px,py])=>{ sx.fillStyle='#101018'; sx.fillRect(zx+px,zy+py,12,8); sx.fillStyle='#E04040'; sx.fillRect(zx+px+3,zy+py+2,4,4); });
+  }
+
+  // ── Theater (y:14-17) ──
+  { const zx=0,zy=14*TS;
+    // big screen
+    sx.fillStyle='#080814'; sx.fillRect(zx,zy,5*TS,4*TS);
+    sx.fillStyle='#F4F0E8'; sx.fillRect(zx+8,zy+8,5*TS-16,80);
+    sx.fillStyle='rgba(200,160,80,.08)'; sx.fillRect(zx+8,zy+8,5*TS-16,80);
+    // light shimmer on screen
+    sx.fillStyle='rgba(255,255,255,.12)'; sx.fillRect(zx+10,zy+10,40,30);
+    // seat rows (2 rows × 2 seats)
+    [[16,96],[74,96],[16,112],[74,112]].forEach(([px,py])=>{
+      sx.fillStyle='#601818'; sx.fillRect(zx+px,zy+py,30,24);
+      sx.fillStyle='#801818'; sx.fillRect(zx+px,zy+py,30,8);
+      sx.fillStyle='rgba(255,80,80,.15)'; sx.fillRect(zx+px,zy+py,30,8);
+    });
+    // floor glow (screen reflection)
+    sx.fillStyle='rgba(255,250,220,.04)'; sx.fillRect(zx,zy+88,5*TS,40);
+  }
+
+  // ═══════════════════════════════════════════════
+  // CENTER TOP  (x:5-24, y:0-4)
+  // ═══════════════════════════════════════════════
+
+  // ── Gym (x:5-11, y:0-4) ──
+  { const zx=5*TS,zy=0,zw=7*TS,zh=5*TS;
+    // dark rubber floor
+    for(let r=0;r<5;r++) for(let c=5;c<12;c++){
+      sx.fillStyle=(r+c)%2===0?'#161616':'#1A1A1A';
+      sx.fillRect(c*TS,r*TS,TS,TS);
+    }
+    // mirror wall
+    sx.fillStyle='rgba(200,225,240,.18)'; sx.fillRect(zx,zy,zw,5);
+    sx.fillStyle='#AABCC4'; sx.fillRect(zx+2,zy,zw-4,4);
+    // dumbbell rack
+    sx.fillStyle='#101010'; sx.fillRect(zx+4,zy+4,54,20);
+    sx.fillStyle='#1C1C1C'; sx.fillRect(zx+4,zy+4,54,6);
+    ['#D02020','#2060B8','#20A038','#C09010','#9020A0','#20A0A0'].forEach((c,i)=>{
+      sx.fillStyle=c; sx.fillRect(zx+6+i*9,zy+7,7,12);
+      sx.fillStyle='rgba(255,255,255,.2)'; sx.fillRect(zx+6+i*9,zy+7,7,3);
+    });
+    // weight bench
+    sx.fillStyle='#1E1E1E'; sx.fillRect(zx+4,zy+2*TS+4,52,14);
+    sx.fillStyle='#2A2A2A'; sx.fillRect(zx+4,zy+2*TS+4,52,5);
+    sx.fillStyle='#A0A0A0'; sx.fillRect(zx+24,zy+2*TS-8,12,8); // barbell
+    sx.fillStyle='#808080'; sx.fillRect(zx+14,zy+2*TS-6,34,4);
+    // yoga mats
+    [[6,3,'#A02828'],[8,3,'#1A4890'],[10,3,'#1A7030']].forEach(([tx,ty,c])=>{
+      sx.fillStyle=c; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,TS+8);
+      sx.fillStyle='rgba(255,255,255,.15)'; sx.fillRect(tx*TS+3,ty*TS+4,TS-6,3);
+    });
+    // treadmill (right side)
+    sx.fillStyle='#1C2818'; sx.fillRect(zx+zw-36,zy+TS+2,34,TS-4);
+    sx.fillStyle='#263C22'; sx.fillRect(zx+zw-34,zy+TS+6,30,14);
+    sx.fillStyle='#C03818'; sx.fillRect(zx+zw-22,zy+TS,16,6);
+  }
+
+  // ── Conference (x:12-18, y:0-4) ──
+  { const zx=12*TS,zy=0,zw=7*TS,zh=5*TS;
+    // projector screen at top
+    sx.fillStyle='#E8EEF4'; sx.fillRect(zx+30,zy+2,zw-60,22);
+    sx.fillStyle='#D8E4EE'; sx.fillRect(zx+32,zy+4,zw-64,16);
+    sx.fillStyle='#8090A0'; sx.fillRect(zx+zw/2-8,zy,16,4);
+    // Limezu conference table via tile sheet (try row 0 of 13_Conference_Hall)
+    const CT13=T['13_Conference_Hall_32x32'];
+    if(CT13&&CT13.complete&&CT13.naturalWidth){
+      // draw the conference hall tile in the center
+      for(let ty=0;ty<3;ty++) for(let tx=0;tx<5;tx++)
+        sx.drawImage(CT13,tx*TS,ty*TS,TS,TS,(zx+TS+tx*TS),zy+TS+ty*TS,TS,TS);
+    } else {
+      // fallback: draw table programmatically
+      const tx0=zx+TS,ty0=zy+TS,tw=5*TS,th=3*TS;
+      sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(tx0+4,ty0+4,tw,th);
+      sx.fillStyle='#5C3818'; sx.fillRect(tx0,ty0,tw,th);
+      sx.fillStyle='#7A5030'; sx.fillRect(tx0,ty0,tw,12);
+      sx.fillStyle='#C8956A'; sx.fillRect(tx0+tw/2-20,ty0+th/2-3,40,5);
+    }
+    // chairs top row
+    [zx+TS+4,zx+2*TS+4,zx+3*TS+4,zx+4*TS+4,zx+5*TS+4].forEach(cx=>{
+      sx.fillStyle='#283858'; sx.fillRect(cx,zy+TS-13,22,13);
+      sx.fillStyle='#3A5080'; sx.fillRect(cx,zy+TS-13,22,5);
+    });
+    // chairs bottom row
+    [zx+TS+4,zx+2*TS+4,zx+3*TS+4,zx+4*TS+4,zx+5*TS+4].forEach(cx=>{
+      sx.fillStyle='#283858'; sx.fillRect(cx,zy+4*TS,22,13);
+      sx.fillStyle='#3A5080'; sx.fillRect(cx,zy+4*TS,22,5);
+    });
+    // whiteboard (right edge)
+    sx.fillStyle='#F0F4F8'; sx.fillRect(zx+zw-22,zy+TS,18,3*TS);
+    sx.fillStyle='#E4ECF4'; sx.fillRect(zx+zw-21,zy+TS+1,16,3*TS-2);
+    sx.strokeStyle='rgba(100,150,200,.35)'; sx.lineWidth=.8;
+    [TS+12,TS+24,TS+36,TS+48,TS+60,TS+72].forEach(dy=>{ sx.beginPath(); sx.moveTo(zx+zw-20,zy+dy); sx.lineTo(zx+zw-5,zy+dy); sx.stroke(); });
+  }
+
+  // ── Lounge (x:19-24, y:0-4) ──
+  { const zx=19*TS,zy=0,zw=6*TS,zh=5*TS;
+    // sofa (main section along bottom)
+    sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(zx+4,zy+zh-48,zw-28,44);
+    sx.fillStyle='#7888A0'; sx.fillRect(zx+4,zy+zh-52,zw-28,44);
+    sx.fillStyle='#8898B8'; sx.fillRect(zx+4,zy+zh-52,zw-28,12);
+    sx.fillStyle='#6070A0'; sx.fillRect(zx+4,zy+zh-12,zw-28,4);
+    [12,46,78].forEach(cx=>{
+      sx.fillStyle='#8090B0'; sx.fillRect(zx+cx,zy+zh-44,26,18);
+      sx.fillStyle='#A0B0C8'; sx.fillRect(zx+cx,zy+zh-44,26,6);
+    });
+    // side arm (left wall)
+    sx.fillStyle='#7888A0'; sx.fillRect(zx+4,zy+TS+4,20,52);
+    sx.fillStyle='#8898B8'; sx.fillRect(zx+4,zy+TS+4,20,10);
+    // coffee table
+    sx.fillStyle='rgba(0,0,0,.15)'; sx.fillRect(zx+48,zy+TS+36,58,30);
+    sx.fillStyle='#A87840'; sx.fillRect(zx+46,zy+TS+32,58,30);
+    sx.fillStyle='#C09050'; sx.fillRect(zx+46,zy+TS+32,58,8);
+    // bookshelf right wall
+    sx.fillStyle='#2A2018'; sx.fillRect(zx+zw-22,zy,22,zh);
+    ['#C83030','#2860D0','#28B040','#D0A020','#9030C0','#28A0A0','#D06020','#E06030'].forEach((c,i)=>{
+      sx.fillStyle=c; sx.fillRect(zx+zw-20,zy+2+i*18,6,14);
+      sx.fillStyle=c; sx.fillRect(zx+zw-12,zy+2+i*18,8,14);
+    });
+    // plant
+    palm(zx+zw-44,zy+2);
+    plant(zx+8,zy+4);
+  }
+
+  // ═══════════════════════════════════════════════
+  // OPEN OFFICE  (x:5-24, y:5-13) — 12 desks
+  // ═══════════════════════════════════════════════
+  // 3 rows × 4 cols  ty: 6,9,12   tx: 7,11,15,19
+  [6,9,12].forEach(ty=>[7,11,15,19].forEach(tx=>desk(tx,ty)));
+  // section divider plants
+  [[5,5],[12,5],[19,5],[5,13],[12,13],[19,13]].forEach(([tx,ty])=>plant(tx*TS+6,ty*TS+6));
+  // water cooler
+  { const wx=5*TS+4,wy=6*TS+4;
+    sx.fillStyle='#C8E0F0'; sx.fillRect(wx,wy,16,28);
+    sx.fillStyle='rgba(80,160,220,.5)'; sx.fillRect(wx+1,wy+1,14,14);
+    sx.fillStyle='#2870B8'; sx.fillRect(wx+2,wy+18,12,6);
+  }
+  // printer + shelving
+  { const pw=23*TS+4,ph=12*TS+4;
+    sx.fillStyle='#C0C0C0'; sx.fillRect(pw,ph,28,20);
+    sx.fillStyle='#DCDCDC'; sx.fillRect(pw+1,ph+1,26,9);
+    sx.fillStyle='#A0A0A8'; sx.fillRect(pw+1,ph+17,26,4);
+  }
+  // notice board (center divider between rows)
+  sx.fillStyle='#8A6830'; sx.fillRect(12*TS,8*TS+12,4,TS-24);
+  sx.fillStyle='#A88040'; sx.fillRect(12*TS+1,8*TS+13,2,TS-26);
+  ['#E83030','#28B040','#E0A020','#3870D0'].forEach((c,i)=>{ sx.fillStyle=c; sx.fillRect(12*TS+2,8*TS+15+i*14,10,10); });
+
+  // ═══════════════════════════════════════════════
+  // CENTER BOTTOM
+  // ═══════════════════════════════════════════════
+
+  // ── CEO Suite (x:5-14, y:14-17) ──
+  { const zx=5*TS,zy=14*TS,zw=10*TS,zh=4*TS;
+    // L-shaped executive desk
+    sx.fillStyle='rgba(0,0,0,.25)'; sx.fillRect(zx+28,zy+28,zw-40,zh-38);
+    sx.fillStyle='#0A1828'; sx.fillRect(zx+24,zy+22,zw-36,zh-34);
+    sx.fillStyle='#122840'; sx.fillRect(zx+24,zy+22,zw-36,14);
+    // side panel
+    sx.fillStyle='#0E2038'; sx.fillRect(zx+24,zy+22,52,zh-34);
+    sx.fillStyle='#1A3050'; sx.fillRect(zx+24,zy+22,52,14);
+    // nameplate
+    sx.fillStyle='#C8956A'; sx.fillRect(zx+96,zy+36,52,7);
+    sx.fillStyle='#B07850'; sx.fillRect(zx+96,zy+41,52,2);
+    // monitor
+    sx.fillStyle='#0A1018'; sx.fillRect(zx+zw-80,zy+8,42,24);
+    sx.fillStyle='rgba(30,120,200,.5)'; sx.fillRect(zx+zw-79,zy+9,40,20);
+    // visitor chairs
+    [[zx+80,zy+zh-28],[zx+116,zy+zh-28]].forEach(([cx,cy])=>{
+      sx.fillStyle='#1E3050'; sx.fillRect(cx,cy,26,18);
+      sx.fillStyle='#2A4468'; sx.fillRect(cx,cy,26,7);
+    });
+    palm(zx+2,zy+2);
+    palm(zx+zw-46,zy+2);
+    // trophy
+    sx.fillStyle='#6A4818'; sx.fillRect(zx+zw-28,zy+2,26,20);
+    sx.fillStyle='#C8B040'; sx.fillRect(zx+zw-26,zy+4,22,16);
+  }
+
+  // ── SS Studio (x:15-24, y:14-17) ──
+  { const zx=15*TS,zy=14*TS,zw=10*TS,zh=4*TS;
+    // creative desk
+    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(zx+22,zy+28,zw-40,zh-36);
+    sx.fillStyle='#1C100A'; sx.fillRect(zx+18,zy+22,zw-32,zh-30);
+    sx.fillStyle='#281810'; sx.fillRect(zx+18,zy+22,zw-32,12);
+    // dual monitors
+    sx.fillStyle='#0A0808'; sx.fillRect(zx+28,zy+6,38,20);
+    sx.fillStyle='rgba(200,120,30,.4)'; sx.fillRect(zx+29,zy+7,36,16);
+    sx.fillStyle='#0A0808'; sx.fillRect(zx+74,zy+4,44,22);
+    sx.fillStyle='rgba(180,80,20,.4)'; sx.fillRect(zx+75,zy+5,42,18);
+    // cork board / mood board
+    sx.fillStyle='#3A2010'; sx.fillRect(zx+zw-62,zy+2,60,36);
+    sx.fillStyle='#4A3020'; sx.fillRect(zx+zw-61,zy+3,58,34);
+    ['#E03030','#2860D0','#28B040','#D0B020','#B030A0'].forEach((c,i)=>{
+      sx.fillStyle=c; sx.fillRect(zx+zw-59+i*11,zy+6,9,12);
+      sx.fillStyle=c; sx.fillRect(zx+zw-60+i*11,zy+22,10,12);
+    });
+    // armchair
+    sx.fillStyle='#382010'; sx.fillRect(zx+24,zy+zh-32,36,26);
+    sx.fillStyle='#503020'; sx.fillRect(zx+24,zy+zh-32,36,10);
+    sx.fillStyle='#704838'; sx.fillRect(zx+25,zy+zh-31,34,8);
+    plant(zx+2,zy+4);
+    plant(zx+zw-24,zy+4);
+  }
+
+  // ═══════════════════════════════════════════════
+  // RIGHT STRIP  (x:25-29, 160px wide)
+  // ═══════════════════════════════════════════════
+  const RX=25*TS;
+
+  // ── Souling (y:0-3) ──
+  { const zy=0;
+    // crystal ball table
+    sx.fillStyle='#3A1848'; sx.fillRect(RX+36,zy+22,52,28);
+    sx.fillStyle='#4A2858'; sx.fillRect(RX+36,zy+22,52,8);
+    // crystal ball
+    sx.fillStyle='rgba(0,0,0,.3)';
+    sx.beginPath(); sx.ellipse(RX+62,zy+20,20,18,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='rgba(160,80,220,.7)';
+    sx.beginPath(); sx.ellipse(RX+62,zy+18,18,16,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='rgba(220,180,255,.4)';
+    sx.beginPath(); sx.ellipse(RX+56,zy+12,8,6,-.5,0,Math.PI*2); sx.fill();
+    // cushion seat
+    cushion(RX+60,zy+54,'#5A2070');
+    // candles
+    [[16,18],[112,14],[8,88],[120,90]].forEach(([px,py])=>{
+      sx.fillStyle='#F0E0A0'; sx.fillRect(RX+px,zy+py,6,12);
+      sx.fillStyle='#F0A020';
+      sx.beginPath(); sx.ellipse(RX+px+3,zy+py-3,3,5,0,0,Math.PI*2); sx.fill();
+      sx.fillStyle='rgba(255,180,30,.15)';
+      sx.beginPath(); sx.ellipse(RX+px+3,zy+py,10,8,0,0,Math.PI*2); sx.fill();
+    });
+  }
+
+  // ── Consulting (y:4-7) ──
+  { const zy=4*TS;
+    // 2 chairs facing each other
+    sx.fillStyle='#4A6080'; sx.fillRect(RX+12,zy+28,26,22);
+    sx.fillStyle='#607898'; sx.fillRect(RX+12,zy+28,26,8);
+    sx.fillStyle='#4A6080'; sx.fillRect(RX+106,zy+28,26,22);
+    sx.fillStyle='#607898'; sx.fillRect(RX+106,zy+28,26,8);
+    // small table between
+    sx.fillStyle='rgba(0,0,0,.15)';
+    sx.beginPath(); sx.ellipse(RX+72,zy+42,24,16,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#A07840';
+    sx.beginPath(); sx.ellipse(RX+72,zy+40,22,14,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#C09050';
+    sx.beginPath(); sx.ellipse(RX+72,zy+39,22,6,0,0,Math.PI*2); sx.fill();
+    // floor lamp
+    sx.fillStyle='#A08040'; sx.fillRect(RX+10,zy+4,4,52);
+    sx.fillStyle='#E0D040'; sx.fillRect(RX+4,zy+4,16,10);
+    sx.fillStyle='rgba(255,240,100,.08)';
+    sx.beginPath(); sx.ellipse(RX+12,zy+14,20,16,0,0,Math.PI*2); sx.fill();
+    plant(RX+110,zy+4*TS-26);
+  }
+
+  // ── Aroma Lab (y:8-10) ──
+  { const zy=8*TS;
+    // workbench
+    sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(RX,zy+2,5*TS,22);
+    sx.fillStyle='#7A5830'; sx.fillRect(RX,zy,5*TS,20);
+    sx.fillStyle='#9A7040'; sx.fillRect(RX,zy,5*TS,6);
+    // jars & bottles
+    [[8,'#C0E8F0'],[28,'#F0C8E0'],[48,'#E0F0C0'],[68,'#F0E0A0'],[88,'#D0C0F0'],[108,'#F0D0C0']].forEach(([px,c])=>{
+      sx.fillStyle=c; sx.fillRect(RX+px,zy+5,14,12);
+      sx.fillStyle='rgba(255,255,255,.4)'; sx.fillRect(RX+px+1,zy+5,4,6);
+      sx.fillStyle='#A09080'; sx.fillRect(RX+px+3,zy+3,8,4);
+    });
+    // candle display
+    sx.fillStyle='#D4C0A0'; sx.fillRect(RX+4,zy+26,24,28);
+    sx.fillStyle='#E8D4B4'; sx.fillRect(RX+4,zy+26,24,8);
+    sx.fillStyle='#F0A020'; sx.beginPath(); sx.ellipse(RX+16,zy+24,4,6,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='rgba(255,180,30,.2)'; sx.beginPath(); sx.ellipse(RX+16,zy+26,10,8,0,0,Math.PI*2); sx.fill();
+    plant(RX+120,zy+22);
+  }
+
+  // ── Zen Room (y:11-13) ──
+  { const zy=11*TS;
+    // zen garden tray (sand pattern)
+    sx.fillStyle='#D8C898'; sx.fillRect(RX+28,zy+8,84,60);
+    sx.fillStyle='rgba(0,0,0,.08)'; sx.fillRect(RX+28,zy+8,84,60);
+    sx.strokeStyle='rgba(180,160,100,.4)'; sx.lineWidth=1;
+    for(let i=0;i<5;i++){ sx.beginPath(); sx.moveTo(RX+30,zy+18+i*8); sx.lineTo(RX+110,zy+18+i*8); sx.stroke(); }
+    // 2 zen stones
+    sx.fillStyle='#606060'; sx.beginPath(); sx.ellipse(RX+50,zy+36,12,8,-.3,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#808080'; sx.beginPath(); sx.ellipse(RX+50,zy+34,10,6,-.3,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#606060'; sx.beginPath(); sx.ellipse(RX+86,zy+42,8,6,.2,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#808080'; sx.beginPath(); sx.ellipse(RX+86,zy+40,6,4,.2,0,Math.PI*2); sx.fill();
+    // meditation cushions
+    cushion(RX+8,zy+16,'#2A5080');
+    cushion(RX+8,zy+52,'#2A5080');
+    // bonsai plant (small)
+    sx.fillStyle='#7A3510'; sx.fillRect(RX+118,zy+54,12,14);
+    sx.fillStyle='#2A6A24'; sx.fillRect(RX+112,zy+36,24,22);
+    sx.fillStyle='#38882E'; sx.fillRect(RX+116,zy+28,18,14);
+  }
+
+  // ── Meditation (y:14-17) ──
+  { const zy=14*TS;
+    // very dark atmosphere, glow from candles
+    sx.fillStyle='rgba(10,20,32,.5)'; sx.fillRect(RX,zy,5*TS,4*TS);
+    // large round meditation cushion center
+    sx.fillStyle='rgba(0,0,0,.35)';
+    sx.beginPath(); sx.ellipse(RX+80,zy+78,38,26,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#1E2850';
+    sx.beginPath(); sx.ellipse(RX+80,zy+74,36,24,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='#2A3868';
+    sx.beginPath(); sx.ellipse(RX+80,zy+74,36,10,0,0,Math.PI*2); sx.fill();
+    sx.fillStyle='rgba(80,100,180,.25)';
+    sx.beginPath(); sx.ellipse(RX+70,zy+66,16,10,-.4,0,Math.PI*2); sx.fill();
+    // incense stick + smoke
+    sx.fillStyle='#C8A870'; sx.fillRect(RX+76,zy+40,3,30);
+    sx.fillStyle='rgba(200,180,255,.3)';
+    for(let i=0;i<6;i++){ sx.beginPath(); sx.ellipse(RX+77+Math.sin(i*.8)*4,zy+38-i*5,3,2,0,0,Math.PI*2); sx.fill(); }
+    // side candles
+    [[18,18],[134,24],[16,90],[134,94]].forEach(([px,py])=>{
+      sx.fillStyle='#C8A870'; sx.fillRect(RX+px,zy+py,6,14);
+      sx.fillStyle='#F0A020'; sx.beginPath(); sx.ellipse(RX+px+3,zy+py-4,3,5,0,0,Math.PI*2); sx.fill();
+      sx.fillStyle='rgba(255,160,20,.1)'; sx.beginPath(); sx.ellipse(RX+px+3,zy+py,12,10,0,0,Math.PI*2); sx.fill();
+    });
+    plant(RX+10,zy+4);
+    plant(RX+118,zy+4);
+  }
 
   staticMapCanvas=sc;
 }
