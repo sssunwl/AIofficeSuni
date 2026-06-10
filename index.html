@@ -101,29 +101,30 @@ ctx.imageSmoothingEnabled=false;
 // ZONES
 // ══════════════════════════════
 const Z={
-  // ── Top row (full width 640px, 4 tiles tall) ──
+  // ── Top row ──
   gym:    {x:0, y:0,  w:7, h:4, floor:'#161616', label:'🏋️ Gym'},
   conf:   {x:7, y:0,  w:7, h:4, floor:'#C4CEDC', label:'📋 Conference'},
   lounge: {x:14,y:0,  w:6, h:4, floor:'#D8C89A', label:'🌿 Lounge'},
-  // ── Open Office (full width, 8 tiles tall) ──
+  // ── Open Office ──
   office: {x:0, y:4,  w:20,h:8, floor:'#ECEAE2', label:'💻 Open Office'},
-  // ── Left rooms (8 tiles wide, 3 tiles each) ──
-  cafe:   {x:0, y:12, w:8, h:3, floor:'#E8D4A0', label:'☕ Café'},
-  kitchen:{x:0, y:15, w:8, h:3, floor:'#DFC99A', label:'🍱 Kitchen'},
-  snack:  {x:0, y:18, w:8, h:3, floor:'#E2D8B2', label:'🍬 Social'},
-  game:   {x:0, y:21, w:8, h:3, floor:'#C8DEC8', label:'🎮 Game Room'},
-  theater:{x:0, y:24, w:8, h:3, floor:'#10101E', label:'🎬 Theater'},
-  // ── Right rooms (8 tiles wide, 3 tiles each) ──
-  souling:{x:12,y:12, w:8, h:3, floor:'#1C1030', label:'🔮 Souling'},
-  consult:{x:12,y:15, w:8, h:3, floor:'#D0D8E8', label:'💬 Consulting'},
-  aroma:  {x:12,y:18, w:8, h:3, floor:'#F0E8E0', label:'🕯️ Aroma Lab'},
-  zen:    {x:12,y:21, w:8, h:3, floor:'#DFE8EC', label:'🌙 Zen Room'},
-  meditate:{x:12,y:24,w:8, h:3, floor:'#0A1420', label:'🧘 Meditation'},
-  // ── CEO & Studio at corridor end (4 tiles tall) ──
-  ceo:    {x:0, y:27, w:8, h:4, floor:'#0D1D36', label:'☀️ CEO Suite'},
-  studio: {x:12,y:27, w:8, h:4, floor:'#180E06', label:'🌊 SS Studio'},
+  // ── CEO & SS Studio directly below office (no corridor between them) ──
+  ceo:    {x:0, y:12, w:10,h:4, floor:'#0D1D36', label:'☀️ CEO Suite'},
+  studio: {x:10,y:12, w:10,h:4, floor:'#180E06', label:'🌊 SS Studio'},
+  // ── Corridor (between left and right rooms) ──
+  corridor:{x:8,y:16, w:4, h:15, floor:'#0D0D1A', label:''},
+  // ── Left rooms ──
+  cafe:   {x:0, y:16, w:8, h:3, floor:'#E8D4A0', label:'☕ Café'},
+  kitchen:{x:0, y:19, w:8, h:3, floor:'#DFC99A', label:'🍱 Kitchen'},
+  snack:  {x:0, y:22, w:8, h:3, floor:'#E2D8B2', label:'🍬 Social'},
+  game:   {x:0, y:25, w:8, h:3, floor:'#C8DEC8', label:'🎮 Game Room'},
+  theater:{x:0, y:28, w:8, h:3, floor:'#10101E', label:'🎬 Theater'},
+  // ── Right rooms ──
+  souling:{x:12,y:16, w:8, h:3, floor:'#1C1030', label:'🔮 Souling'},
+  consult:{x:12,y:19, w:8, h:3, floor:'#D0D8E8', label:'💬 Consulting'},
+  aroma:  {x:12,y:22, w:8, h:3, floor:'#F0E8E0', label:'🕯️ Aroma Lab'},
+  zen:    {x:12,y:25, w:8, h:3, floor:'#DFE8EC', label:'🌙 Zen Room'},
+  meditate:{x:12,y:28,w:8, h:3, floor:'#0A1420', label:'🧘 Meditation'},
 };
-// corridor: x:8-11, y:12-30 (drawn separately, not a zone)
 
 const zoneMap=Array.from({length:TH},()=>Array(TW).fill(null));
 for(const[k,z] of Object.entries(Z))
@@ -206,13 +207,13 @@ const agents=ADEFS.map((d,i)=>{
   }
   return{...d,x:p.x,y:p.y,tx:p.x,ty:p.y,
     state:'idle',idleT:300+i*80+Math.random()*400,
-    wFrame:0,wTick:0,bPhase:i*0.72,bY:0,facing:1};
+    wFrame:0,wTick:0,bPhase:i*0.72,bY:0,facing:1,waypoints:[]};
 });
 
 // ══════════════════════════════
 // SPRITE LOADING
 // ══════════════════════════════
-const FW=32,FH=32,DW=52,DH=52;
+const FW=32,FH=32,DW=64,DH=64;
 const SPRITES={};
 agents.forEach(ag=>{
   const img=new Image();
@@ -274,6 +275,7 @@ function buildStaticMap(){
     meditate:{ft:null,   wt:null},
     ceo:    {ft:null,    wt:null},
     studio: {ft:null,    wt:null},
+    corridor:{ft:null,  wt:null},
   };
 
   for(const[k,z] of Object.entries(Z)){
@@ -316,33 +318,60 @@ function buildStaticMap(){
         sx.strokeRect(tx*TS+.5,ty*TS+.5,TS-1,TS-1);
   }
 
-  // corridor (x:8-11, y:12-30)
-  sx.fillStyle='#0D0D1A'; sx.fillRect(8*TS,12*TS,4*TS,19*TS);
+  // corridor (x:8-11, y:16-30) — drawn as zone (already covered by Z loop)
+  // extra grid lines + ambient strips
   sx.strokeStyle='rgba(40,50,80,0.5)'; sx.lineWidth=1;
-  for(let r=12;r<31;r++) for(let c=8;c<12;c++) sx.strokeRect(c*TS+.5,r*TS+.5,TS-1,TS-1);
-  // corridor ambient light strips
-  for(let r=12;r<31;r+=3){
+  for(let r=16;r<31;r++) for(let c=8;c<12;c++) sx.strokeRect(c*TS+.5,r*TS+.5,TS-1,TS-1);
+  for(let r=16;r<31;r+=3){
     sx.fillStyle='rgba(200,149,106,0.08)';
     sx.fillRect(8*TS,r*TS+12,4*TS,8);
   }
-  // corridor label
-  sx.save(); sx.translate(10*TS,18*TS); sx.rotate(-Math.PI/2);
+  sx.save(); sx.translate(10*TS,22*TS); sx.rotate(-Math.PI/2);
   sx.font='bold 7px monospace'; sx.textAlign='center'; sx.fillStyle='rgba(100,120,160,0.4)';
   sx.fillText('— CORRIDOR —',0,3);
   sx.restore();
 
+  // ── door gap helpers ──
+  // horizontal door: gap in a horizontal wall at pixel y, centered on cx
+  function doorH(wallY,cx){
+    sx.fillStyle='#0A0A12'; sx.fillRect(cx-16,wallY-1,32,4); // clear wall
+    sx.fillStyle='rgba(90,55,25,.9)'; sx.fillRect(cx-15,wallY-2,30,2);
+    sx.fillStyle='#2A1808'; sx.fillRect(cx-13,wallY,26,2);
+  }
+  // vertical door: gap in a vertical wall at pixel x, centered on cy
+  function doorV(wallX,cy){
+    sx.fillStyle='#0A0A12'; sx.fillRect(wallX-1,cy-16,4,32); // clear wall
+    sx.fillStyle='rgba(90,55,25,.9)'; sx.fillRect(wallX-2,cy-15,2,30);
+    sx.fillStyle='#2A1808'; sx.fillRect(wallX,cy-13,2,26);
+  }
+
   // zone borders
   sx.fillStyle='#0A0A12';
-  sx.fillRect(7*TS-1,0,2,4*TS);   // gym|conf
-  sx.fillRect(14*TS-1,0,2,4*TS);  // conf|lounge
-  sx.fillRect(0,4*TS-1,CW,2);     // top|office
-  sx.fillRect(0,12*TS-1,CW,2);    // office|side rooms
-  sx.fillRect(8*TS-1,12*TS,2,CH-12*TS);  // left|corridor
-  sx.fillRect(12*TS-1,12*TS,2,CH-12*TS); // corridor|right
-  [15,18,21,24,27].forEach(ty=>{
-    sx.fillRect(0,ty*TS-1,8*TS,2);   // left room dividers
-    sx.fillRect(12*TS,ty*TS-1,8*TS,2); // right room dividers
+  sx.fillRect(7*TS-1,0,2,4*TS);          // gym|conf
+  sx.fillRect(14*TS-1,0,2,4*TS);         // conf|lounge
+  sx.fillRect(0,4*TS-1,CW,2);            // top|office
+  sx.fillRect(0,12*TS-1,CW,2);           // office|CEO+SS
+  sx.fillRect(10*TS-1,12*TS,2,4*TS);     // CEO|SS Studio divider
+  sx.fillRect(0,16*TS-1,CW,2);           // CEO/SS|lower section
+  sx.fillRect(8*TS-1,16*TS,2,CH-16*TS); // left|corridor
+  sx.fillRect(12*TS-1,16*TS,2,CH-16*TS);// corridor|right
+  [19,22,25,28].forEach(ty=>{
+    sx.fillRect(0,ty*TS-1,8*TS,2);       // left room dividers
+    sx.fillRect(12*TS,ty*TS-1,8*TS,2);   // right room dividers
   });
+
+  // ── door gaps ──
+  // office → CEO (wall at y:12)
+  doorH(12*TS, 5*TS);   // mid-CEO
+  doorH(12*TS, 15*TS);  // mid-SS
+  // CEO/SS → lower section (wall at y:16)
+  doorH(16*TS, 4*TS);   // CEO→Café
+  doorH(16*TS, 10*TS);  // corridor top (CEO side)
+  doorH(16*TS, 16*TS);  // SS→Souling
+  // left rooms → corridor (vertical wall at x:8)
+  [16,19,22,25,28].forEach(ry=>doorV(8*TS,(ry+1.5)*TS));
+  // corridor → right rooms (vertical wall at x:12)
+  [16,19,22,25,28].forEach(ry=>doorV(12*TS,(ry+1.5)*TS));
 
   // zone labels
   sx.font='bold 7px monospace'; sx.textAlign='left';
@@ -528,8 +557,8 @@ function buildStaticMap(){
   // Floor area = zy+32 to zy+96 (64px)
   // ════════════════════════════════════════
 
-  // ── Café (y:12, px y: 384-480) ──
-  {const zx=0,zy=12*TS,zw=8*TS,zh=3*TS;
+  // ── Café (y:16) ──
+  {const zx=0,zy=16*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS; // floor y start (wallH=1)
    // counter along top wall
    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(zx,zy+2,zw,22);
@@ -553,8 +582,8 @@ function buildStaticMap(){
    plant(zx+230,fy+30);
   }
 
-  // ── Kitchen (y:15, px y: 480-576) ──
-  {const zx=0,zy=15*TS,zw=8*TS,zh=3*TS;
+  // ── Kitchen (y:19) ──
+  {const zx=0,zy=19*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(zx,zy+2,zw,20);
    sx.fillStyle='#5A4020'; sx.fillRect(zx,zy,zw,18);
@@ -577,8 +606,8 @@ function buildStaticMap(){
    });
   }
 
-  // ── Social/Snack (y:18, px y: 576-672) ──
-  {const zx=0,zy=18*TS,zw=8*TS,zh=3*TS;
+  // ── Social/Snack (y:22) ──
+  {const zx=0,zy=22*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    // snack shelf along right side (facing corridor)
    sx.fillStyle='#5A4020'; sx.fillRect(zx+zw-26,zy,26,zh);
@@ -600,8 +629,8 @@ function buildStaticMap(){
    plant(zx+4,fy+28);
   }
 
-  // ── Game Room (y:21, px y: 672-768) ──
-  {const zx=0,zy=21*TS,zw=8*TS,zh=3*TS;
+  // ── Game Room (y:25) ──
+  {const zx=0,zy=25*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    // TV screen (in wall area)
    sx.fillStyle='#101018'; sx.fillRect(zx+4,zy+3,100,26);
@@ -623,8 +652,8 @@ function buildStaticMap(){
    plant(zx+180,fy+20);
   }
 
-  // ── Theater (y:24, px y: 768-864) ──
-  {const zx=0,zy=24*TS,zw=8*TS,zh=3*TS;
+  // ── Theater (y:28) ──
+  {const zx=0,zy=28*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    sx.fillStyle='#080814'; sx.fillRect(zx,zy,zw,zh);
    // screen
@@ -646,8 +675,8 @@ function buildStaticMap(){
   // RIGHT ROOMS (x:12-19 = 384-640px wide, wallH=1)
   // ════════════════════════════════════════
 
-  // ── Souling (y:12, px x:384-640) ──
-  {const zx=12*TS,zy=12*TS,zw=8*TS,zh=3*TS;
+  // ── Souling (y:16) ──
+  {const zx=12*TS,zy=16*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    // crystal ball table center
    sx.fillStyle='#3A1848'; sx.fillRect(zx+80,zy+16,48,20);
@@ -671,8 +700,8 @@ function buildStaticMap(){
    plant(zx+230,fy+28);
   }
 
-  // ── Consulting (y:15) ──
-  {const zx=12*TS,zy=15*TS,zw=8*TS,zh=3*TS;
+  // ── Consulting (y:19) ──
+  {const zx=12*TS,zy=19*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    // 2 chairs facing each other
    sx.fillStyle='#4A6080'; sx.fillRect(zx+16,fy+14,24,20);
@@ -694,8 +723,8 @@ function buildStaticMap(){
    plant(zx+230,fy+22);
   }
 
-  // ── Aroma Lab (y:18) ──
-  {const zx=12*TS,zy=18*TS,zw=8*TS,zh=3*TS;
+  // ── Aroma Lab (y:22) ──
+  {const zx=12*TS,zy=22*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    // workbench across top
    sx.fillStyle='rgba(0,0,0,.18)'; sx.fillRect(zx,zy+2,zw,20);
@@ -717,8 +746,8 @@ function buildStaticMap(){
    plant(zx+220,fy+18);
   }
 
-  // ── Zen Room (y:21) ──
-  {const zx=12*TS,zy=21*TS,zw=8*TS,zh=3*TS;
+  // ── Zen Room (y:25) ──
+  {const zx=12*TS,zy=25*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    // zen garden tray
    sx.fillStyle='#D8C898'; sx.fillRect(zx+44,fy+8,120,44);
@@ -739,8 +768,8 @@ function buildStaticMap(){
    sx.fillStyle='#38882E'; sx.fillRect(zx+182,fy+10,18,14);
   }
 
-  // ── Meditation (y:24) ──
-  {const zx=12*TS,zy=24*TS,zw=8*TS,zh=3*TS;
+  // ── Meditation (y:28) ──
+  {const zx=12*TS,zy=28*TS,zw=8*TS,zh=3*TS;
    const fy=zy+TS;
    sx.fillStyle='rgba(10,20,32,.5)'; sx.fillRect(zx,zy,zw,zh);
    // large cushion center
@@ -769,8 +798,8 @@ function buildStaticMap(){
   // BOTTOM — CEO Suite & SS Studio (h=4 tiles = 128px, wallH=2)
   // ════════════════════════════════════════
 
-  // ── CEO Suite (x:0-7, y:27-30 → px: 0-256, 864-992) ──
-  {const zx=0,zy=27*TS,zw=8*TS,zh=4*TS;
+  // ── CEO Suite (x:0-9, y:12-15) ──
+  {const zx=0,zy=12*TS,zw=10*TS,zh=4*TS;
    // L-shaped executive desk
    sx.fillStyle='rgba(0,0,0,.25)'; sx.fillRect(zx+28,zy+50,zw-44,zh-58);
    sx.fillStyle='#0A1828'; sx.fillRect(zx+24,zy+44,zw-40,zh-52);
@@ -793,8 +822,8 @@ function buildStaticMap(){
    sx.fillStyle='#C8B040'; sx.fillRect(zx+zw-26,zy+6,20,14);
   }
 
-  // ── SS Studio (x:12-19, y:27-30 → px: 384-640, 864-992) ──
-  {const zx=12*TS,zy=27*TS,zw=8*TS,zh=4*TS;
+  // ── SS Studio (x:10-19, y:12-15) ──
+  {const zx=10*TS,zy=12*TS,zw=10*TS,zh=4*TS;
    // creative desk
    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(zx+22,zy+50,zw-40,zh-56);
    sx.fillStyle='#1C100A'; sx.fillRect(zx+18,zy+44,zw-32,zh-50);
@@ -868,6 +897,79 @@ function drawAgent(ag,hl){
 }
 
 // ══════════════════════════════
+// ROUTING — prevent wall-crossing
+// ══════════════════════════════
+const SECT={
+  gym:'T',conf:'T',lounge:'T',
+  office:'O',
+  ceo:'C',studio:'C',
+  corridor:'R',
+  cafe:'L',kitchen:'L',snack:'L',game:'L',theater:'L',
+  souling:'G',consult:'G',aroma:'G',zen:'G',meditate:'G',
+};
+
+function getZoneAt(px,py){
+  const tx=Math.max(0,Math.min(TW-1,Math.floor(px/TS)));
+  const ty=Math.max(0,Math.min(TH-1,Math.floor(py/TS)));
+  return zoneMap[ty][tx];
+}
+
+// Returns intermediate waypoints so agent doesn't cut through walls
+function getWaypoints(fromZone,toZone,toX,toY){
+  const fs=SECT[fromZone]||'O';
+  const ts=SECT[toZone]||'O';
+  if(fs===ts) return [];
+
+  const pts=[];
+  // L → G  (left room → right room): must pass through corridor
+  if(fs==='L'&&(ts==='G'||ts==='R')){
+    const fz=Z[fromZone];
+    const midFY=(fz.y+1.5)*TS;
+    // exit left room through x:8 door, enter corridor, navigate to right-side door
+    pts.push({x:7*TS+16, y:midFY});        // just before door on left side
+    pts.push({x:8*TS+16, y:midFY});        // just inside corridor
+    if(ts==='G'){
+      const tz=Z[toZone];
+      const midTY=(tz.y+1.5)*TS;
+      pts.push({x:10*TS,  y:midTY});       // corridor center at target row
+      pts.push({x:12*TS-16, y:midTY});     // just before right door
+    }
+  }
+  // G → L
+  else if(fs==='G'&&(ts==='L'||ts==='R')){
+    const fz=Z[fromZone];
+    const midFY=(fz.y+1.5)*TS;
+    pts.push({x:12*TS+16, y:midFY});
+    pts.push({x:12*TS-16, y:midFY});
+    if(ts==='L'){
+      const tz=Z[toZone];
+      const midTY=(tz.y+1.5)*TS;
+      pts.push({x:10*TS,  y:midTY});
+      pts.push({x:8*TS+16, y:midTY});
+    }
+  }
+  // O/T → L  (office/top → left room, via CEO bottom)
+  else if((fs==='O'||fs==='T')&&ts==='L'){
+    const tz=Z[toZone];
+    pts.push({x:4*TS, y:15*TS+24}); // through CEO bottom-left
+  }
+  // O/T → G  (office/top → right room, via SS bottom)
+  else if((fs==='O'||fs==='T')&&ts==='G'){
+    const tz=Z[toZone];
+    pts.push({x:15*TS, y:15*TS+24}); // through SS bottom-right
+  }
+  // C → L: go through bottom-left of CEO/SS
+  else if(fs==='C'&&ts==='L'){
+    pts.push({x:4*TS, y:15*TS+24});
+  }
+  // C → G: go through bottom-right
+  else if(fs==='C'&&ts==='G'){
+    pts.push({x:16*TS, y:15*TS+24});
+  }
+  return pts;
+}
+
+// ══════════════════════════════
 // AGENT AI
 // ══════════════════════════════
 const SPD=1.3;
@@ -877,12 +979,25 @@ function tickAgent(ag){
     if(--ag.idleT<=0) setTarget(ag);
   } else {
     ag.bY=0;
-    const dx=ag.tx-ag.x,dy=ag.ty-ag.y;
-    const d=Math.sqrt(dx*dx+dy*dy);
-    if(d<SPD){
-      ag.x=ag.tx; ag.y=ag.ty; ag.state='idle'; ag.idleT=500+Math.random()*700;
+    // advance to next waypoint first
+    if(ag.waypoints.length>0){
+      const wp=ag.waypoints[0];
+      const dx=wp.x-ag.x, dy=wp.y-ag.y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<SPD+2){
+        ag.x=wp.x; ag.y=wp.y;
+        ag.waypoints.shift();
+      } else {
+        ag.x+=dx/d*SPD; ag.y+=dy/d*SPD; ag.facing=dx>0?1:-1;
+      }
     } else {
-      ag.x+=dx/d*SPD; ag.y+=dy/d*SPD; ag.facing=dx>0?1:-1;
+      const dx=ag.tx-ag.x,dy=ag.ty-ag.y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<SPD){
+        ag.x=ag.tx; ag.y=ag.ty; ag.state='idle'; ag.idleT=500+Math.random()*700;
+      } else {
+        ag.x+=dx/d*SPD; ag.y+=dy/d*SPD; ag.facing=dx>0?1:-1;
+      }
     }
     if(++ag.wTick%13===0) ag.wFrame^=1;
   }
@@ -897,6 +1012,9 @@ function setTarget(ag){
     const zone=pool[Math.floor(Math.random()*pool.length)];
     p=rndInZone(zone);
   }
+  const fromZone=getZoneAt(ag.x,ag.y)||'office';
+  const toZone=getZoneAt(p.x,p.y)||'office';
+  ag.waypoints=getWaypoints(fromZone,toZone,p.x,p.y);
   ag.tx=p.x; ag.ty=p.y; ag.state='walking'; ag.wFrame=0; ag.wTick=0;
 }
 
@@ -912,14 +1030,12 @@ function hitTest(mx,my){
 }
 canvas.addEventListener('click',e=>{
   const r=canvas.getBoundingClientRect();
-  const s=parseFloat(document.getElementById('wrap').style.transform.replace(/[^0-9.]/g,'')||1);
-  const ag=hitTest((e.clientX-r.left)/s,(e.clientY-r.top)/s);
+  const ag=hitTest((e.clientX-r.left)/SCALE,(e.clientY-r.top)/SCALE);
   if(ag) openPanel(ag);
 });
 canvas.addEventListener('mousemove',e=>{
   const r=canvas.getBoundingClientRect();
-  const s=parseFloat(document.getElementById('wrap').style.transform.replace(/[^0-9.]/g,'')||1);
-  canvas.style.cursor=hitTest((e.clientX-r.left)/s,(e.clientY-r.top)/s)?'pointer':'default';
+  canvas.style.cursor=hitTest((e.clientX-r.left)/SCALE,(e.clientY-r.top)/SCALE)?'pointer':'default';
 });
 
 // ══════════════════════════════
@@ -976,12 +1092,13 @@ function loop(){
 // ══════════════════════════════
 // INIT
 // ══════════════════════════════
+let SCALE=1;
 function scaleToFit(){
-  const s=Math.min(1,(window.innerWidth-8)/CW);
+  SCALE=Math.min(1,(window.innerWidth-8)/CW);
   const wrap=document.getElementById('wrap');
-  wrap.style.transform=s<1?`scale(${s})`:'';
-  wrap.style.marginBottom=s<1?Math.round(CH*s-CH)+'px':'12px';
-  wrap.style.marginRight=s<1?Math.round(CW*s-CW)+'px':'';
+  wrap.style.transform=SCALE<1?`scale(${SCALE})`:'';
+  wrap.style.marginBottom=SCALE<1?Math.round(CH*SCALE-CH)+'px':'12px';
+  wrap.style.marginRight=SCALE<1?Math.round(CW*SCALE-CW)+'px':'';
 }
 window.addEventListener('resize',scaleToFit);
 scaleToFit();
