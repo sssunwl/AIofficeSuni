@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-10T14:13:03.336874+00:00",
+    "type": "conversation",
+    "participants": [
+      "Summer",
+      "Sun"
+    ],
+    "turns": [
+      {
+        "agent": "Summer",
+        "role": "健康美容生活方式專家",
+        "text": "欸，我剛剛在考慮幫 SolisAroma 出一款限定香氛，呼應這季的旅行企劃，你覺得呢？"
+      },
+      {
+        "agent": "Sun",
+        "role": "CEO",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Summer",
+        "role": "健康美容生活方式專家",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-10T10:44:43.498076+00:00",
     "type": "conversation",
     "participants": [
