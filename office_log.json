@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-10T22:17:23.733515+00:00",
+    "type": "conversation",
+    "participants": [
+      "Summer",
+      "Sean"
+    ],
+    "turns": [
+      {
+        "agent": "Summer",
+        "role": "健康美容生活方式專家",
+        "text": "欸，我剛剛想嘗試把 ASMR 元素放進產品介紹影片裡，你覺得呢？"
+      },
+      {
+        "agent": "Sean",
+        "role": "收藏品研究員",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Summer",
+        "role": "健康美容生活方式專家",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-10T19:59:29.074320+00:00",
     "type": "conversation",
     "participants": [
