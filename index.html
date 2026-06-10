@@ -213,7 +213,7 @@ const agents=ADEFS.map((d,i)=>{
 // ══════════════════════════════
 // SPRITE LOADING
 // ══════════════════════════════
-const FW=32,FH=32,DW=32,DH=32;
+const FW=32,FH=64,DW=32,DH=64;
 const SPRITES={};
 agents.forEach(ag=>{
   const img=new Image();
@@ -379,6 +379,11 @@ function buildStaticMap(){
   [16,19,22,25].forEach(ry=>doorV(8*TS,(ry+1.5)*TS));
   // corridor ↔ right rooms (vertical wall x:12, rows y:16 to y:25)
   [16,19,22,25].forEach(ry=>doorV(12*TS,(ry+1.5)*TS));
+  // within-section internal doors (between rooms stacked vertically)
+  [19,22,25].forEach(wy=>{
+    doorH(wy*TS,4*TS);      // left rooms: Café↔Kitchen↔Snack↔Game
+    doorH(wy*TS,15.5*TS);   // right rooms: Souling↔Consult↔Aroma↔Zen
+  });
   // bottom row doors (wall at y:28)
   doorH(28*TS,4*TS);      // Game→Theater (x=128)
   doorH(28*TS,8.5*TS);    // Corridor→Theater (x=272)
@@ -930,46 +935,65 @@ function getZoneAt(px,py){
 function getWaypoints(fromZone,toZone,toX,toY){
   const fs=SECT[fromZone]||'O';
   const ts=SECT[toZone]||'O';
-  if(fs===ts) return [];
+  if(fromZone===toZone) return [];
+  if(fs===ts&&fs!=='L'&&fs!=='G') return [];
 
   const pts=[];
-  const CX=10*TS; // corridor center X
-  const mY=z=>((Z[z]?.y||0)+1.5)*TS; // row center Y for a zone
+  const CX=10*TS;
+  const mY=z=>((Z[z]?.y||0)+1.5)*TS;
+  const LDX=4*TS;    // door center X for left rooms (Café/Kitchen/Snack/Game)
+  const GDX=15.5*TS; // door center X for right rooms (Souling/Consult/Aroma/Zen)
+
+  // L → L  (within left section: align to door center X, walk N/S)
+  if(fs==='L'&&ts==='L'){
+    pts.push({x:LDX,y:mY(fromZone)},{x:LDX,y:mY(toZone)});
+    return pts;
+  }
+  // G → G  (within right section)
+  if(fs==='G'&&ts==='G'){
+    pts.push({x:GDX,y:mY(fromZone)},{x:GDX,y:mY(toZone)});
+    return pts;
+  }
 
   // L ↔ G  (must cross corridor)
   if((fs==='L'||fs==='G')&&(ts==='L'||ts==='G')){
     const fY=mY(fromZone), tY=mY(toZone);
-    // exit source side into corridor
     if(fs==='L') pts.push({x:7.5*TS,y:fY},{x:CX,y:fY});
     else         pts.push({x:12.5*TS,y:fY},{x:CX,y:fY});
-    // move along corridor to target row
     if(Math.abs(fY-tY)>TS/2) pts.push({x:CX,y:tY});
-    // enter target side
     if(ts==='L') pts.push({x:7.5*TS,y:tY});
     else         pts.push({x:12.5*TS,y:tY});
     return pts;
   }
-  // L ↔ R  (left room ↔ corridor)
+  // L ↔ R
   if(fs==='L'&&ts==='R'){ pts.push({x:7.5*TS,y:mY(fromZone)}); return pts; }
   if(fs==='R'&&ts==='L'){ const tY=mY(toZone); pts.push({x:CX,y:tY},{x:7.5*TS,y:tY}); return pts; }
-  // G ↔ R  (right room ↔ corridor)
+  // G ↔ R
   if(fs==='G'&&ts==='R'){ pts.push({x:12.5*TS,y:mY(fromZone)}); return pts; }
   if(fs==='R'&&ts==='G'){ const tY=mY(toZone); pts.push({x:CX,y:tY},{x:12.5*TS,y:tY}); return pts; }
 
-  // O/T ↔ L  (office/top ↔ left rooms, via CEO row → y:16 door)
-  if((fs==='O'||fs==='T')&&ts==='L'){ pts.push({x:4*TS,y:14*TS},{x:4*TS,y:16*TS+24}); return pts; }
-  if(fs==='L'&&(ts==='O'||ts==='T')){ pts.push({x:4*TS,y:15*TS+8},{x:4*TS,y:11*TS+16}); return pts; }
-  // O/T ↔ G  (office/top ↔ right rooms, via SS row → y:16 door)
-  if((fs==='O'||fs==='T')&&ts==='G'){ pts.push({x:16*TS,y:14*TS},{x:16*TS,y:16*TS+24}); return pts; }
-  if(fs==='G'&&(ts==='O'||ts==='T')){ pts.push({x:16*TS,y:15*TS+8},{x:16*TS,y:11*TS+16}); return pts; }
-  // O/T ↔ R  (office/top ↔ corridor, through y:12 top opening)
+  // O/T ↔ L  (via CEO→Café door, then traverse left section to target)
+  if((fs==='O'||fs==='T')&&ts==='L'){
+    pts.push({x:LDX,y:14*TS},{x:LDX,y:16*TS+16});
+    if(toZone!=='cafe') pts.push({x:LDX,y:mY(toZone)});
+    return pts;
+  }
+  if(fs==='L'&&(ts==='O'||ts==='T')){ pts.push({x:LDX,y:15*TS+8},{x:LDX,y:11*TS+16}); return pts; }
+  // O/T ↔ G  (via SS→Souling door, then traverse right section to target)
+  if((fs==='O'||fs==='T')&&ts==='G'){
+    pts.push({x:16*TS,y:14*TS},{x:GDX,y:16*TS+16});
+    if(toZone!=='souling') pts.push({x:GDX,y:mY(toZone)});
+    return pts;
+  }
+  if(fs==='G'&&(ts==='O'||ts==='T')){ pts.push({x:GDX,y:15*TS+8},{x:GDX,y:11*TS+16}); return pts; }
+  // O/T ↔ R
   if((fs==='O'||fs==='T')&&ts==='R'){ pts.push({x:CX,y:13*TS}); return pts; }
   if(fs==='R'&&(ts==='O'||ts==='T')){ pts.push({x:CX,y:11*TS+20}); return pts; }
 
-  // C ↔ O/T  (CEO/SS ↔ office: direct through y:12 wall, no extra waypoints)
+  // C ↔ O/T
   if(fs==='C'&&(ts==='O'||ts==='T')) return [];
   if((fs==='O'||fs==='T')&&ts==='C') return [];
-  // C ↔ R  (CEO/SS ↔ corridor: through side door at CEO/SS row)
+  // C ↔ R
   if(fs==='C'&&ts==='R'){
     if(fromZone==='ceo') pts.push({x:7.5*TS,y:14*TS},{x:CX,y:14*TS});
     else                 pts.push({x:12.5*TS,y:14*TS},{x:CX,y:14*TS});
@@ -980,25 +1004,35 @@ function getWaypoints(fromZone,toZone,toX,toY){
     else                pts.push({x:CX,y:14*TS},{x:12.5*TS,y:14*TS});
     return pts;
   }
-  // C ↔ L  (CEO→Café direct; SS→left via corridor)
+  // C ↔ L
   if(fs==='C'&&ts==='L'){
-    if(fromZone==='ceo'){ pts.push({x:4*TS,y:15*TS+24}); }
-    else { const tY=mY(toZone); pts.push({x:12.5*TS,y:14*TS},{x:CX,y:14*TS},{x:CX,y:tY},{x:7.5*TS,y:tY}); }
+    if(fromZone==='ceo'){
+      pts.push({x:LDX,y:15*TS+24});
+      if(toZone!=='cafe') pts.push({x:LDX,y:mY(toZone)});
+    } else {
+      const tY=mY(toZone);
+      pts.push({x:12.5*TS,y:14*TS},{x:CX,y:14*TS},{x:CX,y:tY},{x:7.5*TS,y:tY});
+    }
     return pts;
   }
   if(fs==='L'&&ts==='C'){
-    if(toZone==='ceo'){ pts.push({x:4*TS,y:15*TS+8}); }
+    if(toZone==='ceo'){ pts.push({x:LDX,y:15*TS+8}); }
     else { const fY=mY(fromZone); pts.push({x:7.5*TS,y:fY},{x:CX,y:fY},{x:CX,y:14*TS},{x:12.5*TS,y:14*TS}); }
     return pts;
   }
-  // C ↔ G  (SS→Souling direct; CEO→right via corridor)
+  // C ↔ G
   if(fs==='C'&&ts==='G'){
-    if(fromZone==='studio'){ pts.push({x:16*TS,y:15*TS+24}); }
-    else { const tY=mY(toZone); pts.push({x:7.5*TS,y:14*TS},{x:CX,y:14*TS},{x:CX,y:tY},{x:12.5*TS,y:tY}); }
+    if(fromZone==='studio'){
+      pts.push({x:GDX,y:15*TS+24});
+      if(toZone!=='souling') pts.push({x:GDX,y:mY(toZone)});
+    } else {
+      const tY=mY(toZone);
+      pts.push({x:7.5*TS,y:14*TS},{x:CX,y:14*TS},{x:CX,y:tY},{x:12.5*TS,y:tY});
+    }
     return pts;
   }
   if(fs==='G'&&ts==='C'){
-    if(toZone==='studio'){ pts.push({x:16*TS,y:15*TS+8}); }
+    if(toZone==='studio'){ pts.push({x:GDX,y:15*TS+8}); }
     else { const fY=mY(fromZone); pts.push({x:12.5*TS,y:fY},{x:CX,y:fY},{x:CX,y:14*TS},{x:7.5*TS,y:14*TS}); }
     return pts;
   }
