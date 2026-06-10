@@ -21,8 +21,8 @@ HTML5 Canvas 640×992px（20×31 tiles @ 32px），直式佈局，Limezu Modern 
 - [x] 17 個 ZONES 定義（含 corridor）
   - 頂排 3 間：Gym / Conference / Lounge
   - 中間：Open Office（20×8 tiles）
-  - 辦公室正下方：CEO Suite (x:0-9) / SS Studio (x:10-19)（y:12-15，並排無走廊）
-  - 走廊：x:8-11，y:16-30（連接左右兩側房間）
+  - 辦公室正下方：CEO Suite (x:0-7) + Corridor (x:8-11) + SS Studio (x:12-19)（y:12-15）
+  - 走廊：x:8-11，y:12-27（CEO/SS 行直通至側面房間，共 16 tiles 高）
   - 左側 5 間：Café / Kitchen / Social / Game Room / Theater（y:16-30）
   - 右側 5 間：Souling / Consulting / Aroma Lab / Zen Room / Meditation（y:16-30）
 - [x] Zone-based 隨機移動（rndInZone 自適應 padding）
@@ -30,7 +30,7 @@ HTML5 Canvas 640×992px（20×31 tiles @ 32px），直式佈局，Limezu Modern 
 
 ### 角色系統
 - [x] 13 位 Agent Limezu sprite（Aseprite Lua 腳本生成，Body+Outfit+Hair+Eyes 合成）
-- [x] 角色動畫：sy=0 walk-south，FW=32，DW/DH=64，2 幀循環
+- [x] 角色動畫：sy=0 walk-south，FW=32，DW/DH=32（1:1），2 幀循環
 - [x] 角色下方橢圓陰影
 - [x] 點擊 agent → 側欄顯示對話記錄
 - [x] Agent 名稱標籤顯示
@@ -40,7 +40,7 @@ HTML5 Canvas 640×992px（20×31 tiles @ 32px），直式佈局，Limezu Modern 
 - [x] 12 位 Agent 固定桌位（4 cols × 3 rows，ty=7/9/11）
 - [x] 85% 機率回自己桌子，15% 去 prefer 或 wander zone
 - [x] 分散 idle time（staggered）
-- [x] **Waypoint 路徑規劃系統**（SECT 分區 + getWaypoints）：左↔右側房間跨走廊移動不穿牆
+- [x] **Waypoint 路徑規劃系統**（SECT 分區 + getWaypoints 重寫）：14 種跨區路線，不穿牆
 
 ### 環境／地圖
 - [x] Limezu Room_Builder_Floors_32x32 地板 tile 紋理
@@ -62,7 +62,7 @@ HTML5 Canvas 640×992px（20×31 tiles @ 32px），直式佈局，Limezu Modern 
 
 ## 目前狀態
 
-**Latest commit**：`7581e82` — feat: 重構版面佈局 — CEO/SS 移至辦公室正下方，新增走廊 zone，門洞視覺，路徑規劃防穿牆，人物 DW/DH=64
+**Latest commit**：`082e577` — fix: DH=32、CEO/SS with corridor、路徑規劃重寫、theater/meditation 佈局修正
 **部署狀態**：已推送，GitHub Pages 約 1 分鐘內生效
 
 ### 架構現況
@@ -72,11 +72,12 @@ HTML5 Canvas 640×992px（20×31 tiles @ 32px），直式佈局，Limezu Modern 
 | 地板/牆壁 | ✅ Limezu Room_Builder tile |
 | Open Office 桌子 | ✅ Limezu Classroom sprite（12 張，3 列） |
 | 其他房間傢具 | ⚠️ fillRect（自製像素，非 Limezu sprite） |
-| CEO Suite / SS Studio | ✅ 位於辦公室正下方，並排，各寬 10 tiles |
-| 走廊 zone | ✅ x:8-11，y:16-30，有環境光、格線 |
-| 門洞 | ✅ 所有牆壁邊界均有棕色門框 |
-| 路徑規劃 | ✅ SECT + getWaypoints，防穿牆 |
-| 角色尺寸 | ✅ DW/DH=64，人物完整可見 |
+| CEO Suite (x:0-7) / SS Studio (x:12-19) | ✅ 辦公室正下方，走廊 (x:8-11) 居中 |
+| Theater (x:0-9) / Meditation (x:10-19) | ✅ 最底並排無走廊，各佔 10 tiles |
+| 走廊 zone | ✅ x:8-11，y:12-27（共 16 tiles 高）有環境光、格線 |
+| 門洞 | ✅ 辦公室入口 3 個 + 走廊側門 8 個 + 底排 4 個 |
+| 路徑規劃 | ✅ getWaypoints 重寫，14 種跨區路線，不穿牆 |
+| 角色尺寸 | ✅ DW/DH=32，1:1 原始比例 |
 | 對話系統 | ✅ 自動生成，每 5 分鐘 |
 
 ---
@@ -105,13 +106,13 @@ HTML5 Canvas 640×992px（20×31 tiles @ 32px），直式佈局，Limezu Modern 
 
 | 問題 | 嚴重度 | 狀態 |
 |------|--------|------|
-| 門洞位置為計算值，未視覺確認是否對齊 tile 邊界 | 中 | 待截圖確認 |
+| 門洞位置已重算，需截圖確認視覺效果 | 低 | 待截圖確認 |
 | Classroom desk sprite 座標（source 320,0,64,64）未視覺驗證 | 中 | 待截圖確認 |
 | Room_Builder Floors/Walls tile 座標為估算值 | 中 | 待截圖確認 |
 | 大部分房間傢具仍是 fillRect，整體細緻度不及 Limezu 原版 | 中 | 逐步替換中 |
 | office_tick.py cron 每次 push 後本機需先 git pull --rebase | 低 | 已知，每次 push 前手動處理 |
 | Conference room CT13 tile 渲染可能不正確 | 中 | 待確認 |
-| 路徑規劃 O/T→L/G 使用固定中繼點，複雜路線可能仍有夾角穿牆 | 低 | 可接受，待日後細化 |
+| 路徑規劃 getWaypoints 已全面重寫；若仍發現穿牆需回報具體路線 | 低 | 待觀察 |
 
 ---
 
