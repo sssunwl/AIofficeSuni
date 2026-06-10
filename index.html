@@ -107,23 +107,23 @@ const Z={
   lounge: {x:14,y:0,  w:6, h:4, floor:'#D8C89A', label:'🌿 Lounge'},
   // ── Open Office ──
   office: {x:0, y:4,  w:20,h:8, floor:'#ECEAE2', label:'💻 Open Office'},
-  // ── CEO & SS Studio directly below office (no corridor between them) ──
-  ceo:    {x:0, y:12, w:10,h:4, floor:'#0D1D36', label:'☀️ CEO Suite'},
-  studio: {x:10,y:12, w:10,h:4, floor:'#180E06', label:'🌊 SS Studio'},
-  // ── Corridor (between left and right rooms) ──
-  corridor:{x:8,y:16, w:4, h:15, floor:'#0D0D1A', label:''},
-  // ── Left rooms ──
+  // ── CEO & SS Studio — below office, corridor (x:8-11) BETWEEN them ──
+  ceo:    {x:0, y:12, w:8, h:4, floor:'#0D1D36', label:'☀️ CEO Suite'},
+  studio: {x:12,y:12, w:8, h:4, floor:'#180E06', label:'🌊 SS Studio'},
+  // ── Corridor — x:8-11, y:12-27 (connects CEO/SS row with all side rooms) ──
+  corridor:{x:8,y:12, w:4, h:16, floor:'#0D0D1A', label:''},
+  // ── Left rooms (x:0-7) ──
   cafe:   {x:0, y:16, w:8, h:3, floor:'#E8D4A0', label:'☕ Café'},
   kitchen:{x:0, y:19, w:8, h:3, floor:'#DFC99A', label:'🍱 Kitchen'},
   snack:  {x:0, y:22, w:8, h:3, floor:'#E2D8B2', label:'🍬 Social'},
   game:   {x:0, y:25, w:8, h:3, floor:'#C8DEC8', label:'🎮 Game Room'},
-  theater:{x:0, y:28, w:8, h:3, floor:'#10101E', label:'🎬 Theater'},
-  // ── Right rooms ──
+  theater:{x:0, y:28, w:10,h:3, floor:'#10101E', label:'🎬 Theater'},
+  // ── Right rooms (x:12-19) ──
   souling:{x:12,y:16, w:8, h:3, floor:'#1C1030', label:'🔮 Souling'},
   consult:{x:12,y:19, w:8, h:3, floor:'#D0D8E8', label:'💬 Consulting'},
   aroma:  {x:12,y:22, w:8, h:3, floor:'#F0E8E0', label:'🕯️ Aroma Lab'},
   zen:    {x:12,y:25, w:8, h:3, floor:'#DFE8EC', label:'🌙 Zen Room'},
-  meditate:{x:12,y:28,w:8, h:3, floor:'#0A1420', label:'🧘 Meditation'},
+  meditate:{x:10,y:28,w:10,h:3, floor:'#0A1420', label:'🧘 Meditation'},
 };
 
 const zoneMap=Array.from({length:TH},()=>Array(TW).fill(null));
@@ -213,7 +213,7 @@ const agents=ADEFS.map((d,i)=>{
 // ══════════════════════════════
 // SPRITE LOADING
 // ══════════════════════════════
-const FW=32,FH=32,DW=64,DH=64;
+const FW=32,FH=32,DW=32,DH=32;
 const SPRITES={};
 agents.forEach(ag=>{
   const img=new Image();
@@ -321,12 +321,12 @@ function buildStaticMap(){
   // corridor (x:8-11, y:16-30) — drawn as zone (already covered by Z loop)
   // extra grid lines + ambient strips
   sx.strokeStyle='rgba(40,50,80,0.5)'; sx.lineWidth=1;
-  for(let r=16;r<31;r++) for(let c=8;c<12;c++) sx.strokeRect(c*TS+.5,r*TS+.5,TS-1,TS-1);
-  for(let r=16;r<31;r+=3){
+  for(let r=12;r<28;r++) for(let c=8;c<12;c++) sx.strokeRect(c*TS+.5,r*TS+.5,TS-1,TS-1);
+  for(let r=12;r<28;r+=3){
     sx.fillStyle='rgba(200,149,106,0.08)';
     sx.fillRect(8*TS,r*TS+12,4*TS,8);
   }
-  sx.save(); sx.translate(10*TS,22*TS); sx.rotate(-Math.PI/2);
+  sx.save(); sx.translate(10*TS,20*TS); sx.rotate(-Math.PI/2);
   sx.font='bold 7px monospace'; sx.textAlign='center'; sx.fillStyle='rgba(100,120,160,0.4)';
   sx.fillText('— CORRIDOR —',0,3);
   sx.restore();
@@ -347,31 +347,43 @@ function buildStaticMap(){
 
   // zone borders
   sx.fillStyle='#0A0A12';
-  sx.fillRect(7*TS-1,0,2,4*TS);          // gym|conf
-  sx.fillRect(14*TS-1,0,2,4*TS);         // conf|lounge
-  sx.fillRect(0,4*TS-1,CW,2);            // top|office
-  sx.fillRect(0,12*TS-1,CW,2);           // office|CEO+SS
-  sx.fillRect(10*TS-1,12*TS,2,4*TS);     // CEO|SS Studio divider
-  sx.fillRect(0,16*TS-1,CW,2);           // CEO/SS|lower section
-  sx.fillRect(8*TS-1,16*TS,2,CH-16*TS); // left|corridor
-  sx.fillRect(12*TS-1,16*TS,2,CH-16*TS);// corridor|right
-  [19,22,25,28].forEach(ty=>{
-    sx.fillRect(0,ty*TS-1,8*TS,2);       // left room dividers
-    sx.fillRect(12*TS,ty*TS-1,8*TS,2);   // right room dividers
-  });
+  sx.fillRect(7*TS-1,0,2,4*TS);              // gym|conf
+  sx.fillRect(14*TS-1,0,2,4*TS);             // conf|lounge
+  sx.fillRect(0,4*TS-1,CW,2);                // top rows|office
+  sx.fillRect(0,12*TS-1,CW,2);               // office|CEO+corridor+SS
+  // corridor vertical walls (y:12 to y:28 = 16 tiles)
+  sx.fillRect(8*TS-1,12*TS,2,16*TS);         // left rooms|corridor
+  sx.fillRect(12*TS-1,12*TS,2,16*TS);        // corridor|right rooms
+  // left room horizontal dividers (x:0-7 only; CEO|Café then 3 more)
+  sx.fillRect(0,16*TS-1,8*TS,2);             // CEO|Café
+  [19,22,25].forEach(ty=>sx.fillRect(0,ty*TS-1,8*TS,2));
+  // right room horizontal dividers (x:12-19 only)
+  sx.fillRect(12*TS,16*TS-1,8*TS,2);         // SS|Souling
+  [19,22,25].forEach(ty=>sx.fillRect(12*TS,ty*TS-1,8*TS,2));
+  // bottom row — full-width wall (corridor ends, theater+meditation begin)
+  sx.fillRect(0,28*TS-1,CW,2);
+  sx.fillRect(10*TS-1,28*TS,2,3*TS);         // theater|meditation vertical divider
 
   // ── door gaps ──
-  // office → CEO (wall at y:12)
-  doorH(12*TS, 5*TS);   // mid-CEO
-  doorH(12*TS, 15*TS);  // mid-SS
-  // CEO/SS → lower section (wall at y:16)
-  doorH(16*TS, 4*TS);   // CEO→Café
-  doorH(16*TS, 10*TS);  // corridor top (CEO side)
-  doorH(16*TS, 16*TS);  // SS→Souling
-  // left rooms → corridor (vertical wall at x:8)
-  [16,19,22,25,28].forEach(ry=>doorV(8*TS,(ry+1.5)*TS));
-  // corridor → right rooms (vertical wall at x:12)
-  [16,19,22,25,28].forEach(ry=>doorV(12*TS,(ry+1.5)*TS));
+  // office → CEO / corridor top / SS (wall at y:12)
+  doorH(12*TS,3.5*TS);    // office→CEO center (x=112)
+  doorH(12*TS,9.5*TS);    // office→corridor top (x=304)
+  doorH(12*TS,15.5*TS);   // office→SS center (x=496)
+  // CEO ↔ corridor and corridor ↔ SS (vertical walls x:8 and x:12, CEO/SS row)
+  doorV(8*TS,14*TS);      // CEO side door into corridor
+  doorV(12*TS,14*TS);     // SS side door from corridor
+  // CEO→Café, SS→Souling (horizontal walls at y:16, sides only)
+  doorH(16*TS,3.5*TS);    // CEO→Café (x=112)
+  doorH(16*TS,15.5*TS);   // SS→Souling (x=496)
+  // left rooms ↔ corridor (vertical wall x:8, rows y:16 to y:25)
+  [16,19,22,25].forEach(ry=>doorV(8*TS,(ry+1.5)*TS));
+  // corridor ↔ right rooms (vertical wall x:12, rows y:16 to y:25)
+  [16,19,22,25].forEach(ry=>doorV(12*TS,(ry+1.5)*TS));
+  // bottom row doors (wall at y:28)
+  doorH(28*TS,4*TS);      // Game→Theater (x=128)
+  doorH(28*TS,8.5*TS);    // Corridor→Theater (x=272)
+  doorH(28*TS,10.5*TS);   // Corridor→Meditation (x=336)
+  doorH(28*TS,15.5*TS);   // Zen→Meditation (x=496)
 
   // zone labels
   sx.font='bold 7px monospace'; sx.textAlign='left';
@@ -653,7 +665,7 @@ function buildStaticMap(){
   }
 
   // ── Theater (y:28) ──
-  {const zx=0,zy=28*TS,zw=8*TS,zh=3*TS;
+  {const zx=0,zy=28*TS,zw=10*TS,zh=3*TS;
    const fy=zy+TS;
    sx.fillStyle='#080814'; sx.fillRect(zx,zy,zw,zh);
    // screen
@@ -769,7 +781,7 @@ function buildStaticMap(){
   }
 
   // ── Meditation (y:28) ──
-  {const zx=12*TS,zy=28*TS,zw=8*TS,zh=3*TS;
+  {const zx=10*TS,zy=28*TS,zw=10*TS,zh=3*TS;
    const fy=zy+TS;
    sx.fillStyle='rgba(10,20,32,.5)'; sx.fillRect(zx,zy,zw,zh);
    // large cushion center
@@ -798,8 +810,8 @@ function buildStaticMap(){
   // BOTTOM — CEO Suite & SS Studio (h=4 tiles = 128px, wallH=2)
   // ════════════════════════════════════════
 
-  // ── CEO Suite (x:0-9, y:12-15) ──
-  {const zx=0,zy=12*TS,zw=10*TS,zh=4*TS;
+  // ── CEO Suite (x:0-7, y:12-15) ──
+  {const zx=0,zy=12*TS,zw=8*TS,zh=4*TS;
    // L-shaped executive desk
    sx.fillStyle='rgba(0,0,0,.25)'; sx.fillRect(zx+28,zy+50,zw-44,zh-58);
    sx.fillStyle='#0A1828'; sx.fillRect(zx+24,zy+44,zw-40,zh-52);
@@ -822,8 +834,8 @@ function buildStaticMap(){
    sx.fillStyle='#C8B040'; sx.fillRect(zx+zw-26,zy+6,20,14);
   }
 
-  // ── SS Studio (x:10-19, y:12-15) ──
-  {const zx=10*TS,zy=12*TS,zw=10*TS,zh=4*TS;
+  // ── SS Studio (x:12-19, y:12-15) ──
+  {const zx=12*TS,zy=12*TS,zw=8*TS,zh=4*TS;
    // creative desk
    sx.fillStyle='rgba(0,0,0,.2)'; sx.fillRect(zx+22,zy+50,zw-40,zh-56);
    sx.fillStyle='#1C100A'; sx.fillRect(zx+18,zy+44,zw-32,zh-50);
@@ -914,59 +926,84 @@ function getZoneAt(px,py){
   return zoneMap[ty][tx];
 }
 
-// Returns intermediate waypoints so agent doesn't cut through walls
+// Returns waypoints so agents route through doors, never through walls
 function getWaypoints(fromZone,toZone,toX,toY){
   const fs=SECT[fromZone]||'O';
   const ts=SECT[toZone]||'O';
   if(fs===ts) return [];
 
   const pts=[];
-  // L → G  (left room → right room): must pass through corridor
-  if(fs==='L'&&(ts==='G'||ts==='R')){
-    const fz=Z[fromZone];
-    const midFY=(fz.y+1.5)*TS;
-    // exit left room through x:8 door, enter corridor, navigate to right-side door
-    pts.push({x:7*TS+16, y:midFY});        // just before door on left side
-    pts.push({x:8*TS+16, y:midFY});        // just inside corridor
-    if(ts==='G'){
-      const tz=Z[toZone];
-      const midTY=(tz.y+1.5)*TS;
-      pts.push({x:10*TS,  y:midTY});       // corridor center at target row
-      pts.push({x:12*TS-16, y:midTY});     // just before right door
-    }
+  const CX=10*TS; // corridor center X
+  const mY=z=>((Z[z]?.y||0)+1.5)*TS; // row center Y for a zone
+
+  // L ↔ G  (must cross corridor)
+  if((fs==='L'||fs==='G')&&(ts==='L'||ts==='G')){
+    const fY=mY(fromZone), tY=mY(toZone);
+    // exit source side into corridor
+    if(fs==='L') pts.push({x:7.5*TS,y:fY},{x:CX,y:fY});
+    else         pts.push({x:12.5*TS,y:fY},{x:CX,y:fY});
+    // move along corridor to target row
+    if(Math.abs(fY-tY)>TS/2) pts.push({x:CX,y:tY});
+    // enter target side
+    if(ts==='L') pts.push({x:7.5*TS,y:tY});
+    else         pts.push({x:12.5*TS,y:tY});
+    return pts;
   }
-  // G → L
-  else if(fs==='G'&&(ts==='L'||ts==='R')){
-    const fz=Z[fromZone];
-    const midFY=(fz.y+1.5)*TS;
-    pts.push({x:12*TS+16, y:midFY});
-    pts.push({x:12*TS-16, y:midFY});
-    if(ts==='L'){
-      const tz=Z[toZone];
-      const midTY=(tz.y+1.5)*TS;
-      pts.push({x:10*TS,  y:midTY});
-      pts.push({x:8*TS+16, y:midTY});
-    }
+  // L ↔ R  (left room ↔ corridor)
+  if(fs==='L'&&ts==='R'){ pts.push({x:7.5*TS,y:mY(fromZone)}); return pts; }
+  if(fs==='R'&&ts==='L'){ const tY=mY(toZone); pts.push({x:CX,y:tY},{x:7.5*TS,y:tY}); return pts; }
+  // G ↔ R  (right room ↔ corridor)
+  if(fs==='G'&&ts==='R'){ pts.push({x:12.5*TS,y:mY(fromZone)}); return pts; }
+  if(fs==='R'&&ts==='G'){ const tY=mY(toZone); pts.push({x:CX,y:tY},{x:12.5*TS,y:tY}); return pts; }
+
+  // O/T ↔ L  (office/top ↔ left rooms, via CEO row → y:16 door)
+  if((fs==='O'||fs==='T')&&ts==='L'){ pts.push({x:4*TS,y:14*TS},{x:4*TS,y:16*TS+24}); return pts; }
+  if(fs==='L'&&(ts==='O'||ts==='T')){ pts.push({x:4*TS,y:15*TS+8},{x:4*TS,y:11*TS+16}); return pts; }
+  // O/T ↔ G  (office/top ↔ right rooms, via SS row → y:16 door)
+  if((fs==='O'||fs==='T')&&ts==='G'){ pts.push({x:16*TS,y:14*TS},{x:16*TS,y:16*TS+24}); return pts; }
+  if(fs==='G'&&(ts==='O'||ts==='T')){ pts.push({x:16*TS,y:15*TS+8},{x:16*TS,y:11*TS+16}); return pts; }
+  // O/T ↔ R  (office/top ↔ corridor, through y:12 top opening)
+  if((fs==='O'||fs==='T')&&ts==='R'){ pts.push({x:CX,y:13*TS}); return pts; }
+  if(fs==='R'&&(ts==='O'||ts==='T')){ pts.push({x:CX,y:11*TS+20}); return pts; }
+
+  // C ↔ O/T  (CEO/SS ↔ office: direct through y:12 wall, no extra waypoints)
+  if(fs==='C'&&(ts==='O'||ts==='T')) return [];
+  if((fs==='O'||fs==='T')&&ts==='C') return [];
+  // C ↔ R  (CEO/SS ↔ corridor: through side door at CEO/SS row)
+  if(fs==='C'&&ts==='R'){
+    if(fromZone==='ceo') pts.push({x:7.5*TS,y:14*TS},{x:CX,y:14*TS});
+    else                 pts.push({x:12.5*TS,y:14*TS},{x:CX,y:14*TS});
+    return pts;
   }
-  // O/T → L  (office/top → left room, via CEO bottom)
-  else if((fs==='O'||fs==='T')&&ts==='L'){
-    const tz=Z[toZone];
-    pts.push({x:4*TS, y:15*TS+24}); // through CEO bottom-left
+  if(fs==='R'&&ts==='C'){
+    if(toZone==='ceo')  pts.push({x:CX,y:14*TS},{x:7.5*TS,y:14*TS});
+    else                pts.push({x:CX,y:14*TS},{x:12.5*TS,y:14*TS});
+    return pts;
   }
-  // O/T → G  (office/top → right room, via SS bottom)
-  else if((fs==='O'||fs==='T')&&ts==='G'){
-    const tz=Z[toZone];
-    pts.push({x:15*TS, y:15*TS+24}); // through SS bottom-right
+  // C ↔ L  (CEO→Café direct; SS→left via corridor)
+  if(fs==='C'&&ts==='L'){
+    if(fromZone==='ceo'){ pts.push({x:4*TS,y:15*TS+24}); }
+    else { const tY=mY(toZone); pts.push({x:12.5*TS,y:14*TS},{x:CX,y:14*TS},{x:CX,y:tY},{x:7.5*TS,y:tY}); }
+    return pts;
   }
-  // C → L: go through bottom-left of CEO/SS
-  else if(fs==='C'&&ts==='L'){
-    pts.push({x:4*TS, y:15*TS+24});
+  if(fs==='L'&&ts==='C'){
+    if(toZone==='ceo'){ pts.push({x:4*TS,y:15*TS+8}); }
+    else { const fY=mY(fromZone); pts.push({x:7.5*TS,y:fY},{x:CX,y:fY},{x:CX,y:14*TS},{x:12.5*TS,y:14*TS}); }
+    return pts;
   }
-  // C → G: go through bottom-right
-  else if(fs==='C'&&ts==='G'){
-    pts.push({x:16*TS, y:15*TS+24});
+  // C ↔ G  (SS→Souling direct; CEO→right via corridor)
+  if(fs==='C'&&ts==='G'){
+    if(fromZone==='studio'){ pts.push({x:16*TS,y:15*TS+24}); }
+    else { const tY=mY(toZone); pts.push({x:7.5*TS,y:14*TS},{x:CX,y:14*TS},{x:CX,y:tY},{x:12.5*TS,y:tY}); }
+    return pts;
   }
-  return pts;
+  if(fs==='G'&&ts==='C'){
+    if(toZone==='studio'){ pts.push({x:16*TS,y:15*TS+8}); }
+    else { const fY=mY(fromZone); pts.push({x:12.5*TS,y:fY},{x:CX,y:fY},{x:CX,y:14*TS},{x:7.5*TS,y:14*TS}); }
+    return pts;
+  }
+
+  return [];
 }
 
 // ══════════════════════════════
