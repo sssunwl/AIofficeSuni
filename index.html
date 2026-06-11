@@ -385,18 +385,24 @@ function buildStaticMap(){
   doorH(28*TS,10.5*TS);   // Corridor→Meditation
   doorH(28*TS,15.5*TS);   // Zen→Meditation
 
-  // ── 2.5D wall depth — gradient shadow south of horizontal walls ──
+  // ── 2.5D wall depth — solid face + shadow south of horizontal walls ──
   {function wShadow(wallY,x1,x2,doors){
-    const depth=7;
-    const g=sx.createLinearGradient(0,wallY+2,0,wallY+2+depth);
-    g.addColorStop(0,'rgba(0,0,0,.33)'); g.addColorStop(1,'rgba(0,0,0,0)');
-    sx.fillStyle=g;
-    let px=x1;
+    const faceH=12, gradH=7;
+    const segs=[]; let px=x1;
     [...doors].sort((a,b)=>a-b).forEach(cx=>{
-      if(cx-18>px) sx.fillRect(px,wallY+2,cx-18-px,depth);
+      if(cx-18>px) segs.push([px,cx-18]);
       px=cx+18;
     });
-    if(px<x2) sx.fillRect(px,wallY+2,x2-px,depth);
+    if(px<x2) segs.push([px,x2]);
+    segs.forEach(([s,e])=>{
+      // dark wall face (simulates wall thickness seen from above)
+      sx.fillStyle='rgba(0,0,0,0.48)';
+      sx.fillRect(s,wallY+2,e-s,faceH);
+      // gradient shadow below face
+      const g=sx.createLinearGradient(0,wallY+2+faceH,0,wallY+2+faceH+gradH);
+      g.addColorStop(0,'rgba(0,0,0,0.26)'); g.addColorStop(1,'rgba(0,0,0,0)');
+      sx.fillStyle=g; sx.fillRect(s,wallY+2+faceH,e-s,gradH);
+    });
   }
   wShadow(4*TS,   0,    CW,       [3.5*TS,10.5*TS,17*TS]);
   wShadow(16*TS,  0,    8*TS,     [3.5*TS]);
@@ -568,7 +574,7 @@ function buildStaticMap(){
    [5,7,9,11,13].forEach(tx=>{
      if(CL&&CL.complete&&CL.naturalWidth){
        sx.save();
-       sx.translate(tx*TS, 10*TS); // bottom of dest = (ty-1)*TS+64 = 9*TS+64
+       sx.translate(tx*TS, 9*TS+64); // bottom of dest area: 9*TS+64 = 11*TS
        sx.scale(1,-1);
        sx.drawImage(CL,320,0,64,64,0,0,64,64);
        sx.restore();
@@ -982,10 +988,33 @@ function getWaypoints(fromZone,toZone,toX,toY){
   const pts=[];
   const CX=10*TS;
   const mY=z=>((Z[z]?.y||0)+1.5)*TS;
-  const LDX=4*TS;    // left rooms door center X
-  const GDX=15.5*TS; // right rooms door center X
+  const LDX=3.5*TS;  // CEO→Café door center X (matches doorH(16*TS,3.5*TS))
+  const GDX=15.5*TS; // SS→Souling door center X (matches doorH(16*TS,15.5*TS))
   // center-bottom door X for each top room
   const TOP_DX={gym:3.5*TS, conf:10.5*TS, lounge:17*TS};
+
+  // ── Theater / Meditate: connect via bottom corridor door (y=28*TS) ──
+  // theater exits bottom-right to corridor; meditate exits bottom-left
+  if(fromZone==='theater'){
+    pts.push({x:8.5*TS,y:28.2*TS},{x:CX,y:27.5*TS});
+    if(ts==='R') return pts;
+    const sub=getWaypoints('corridor',toZone,toX,toY);
+    return pts.concat(sub);
+  }
+  if(fromZone==='meditate'){
+    pts.push({x:10.5*TS,y:28.2*TS},{x:CX,y:27.5*TS});
+    if(ts==='R') return pts;
+    const sub=getWaypoints('corridor',toZone,toX,toY);
+    return pts.concat(sub);
+  }
+  if(toZone==='theater'){
+    const sub=getWaypoints(fromZone,'corridor',CX,27.5*TS);
+    return sub.concat([{x:8.5*TS,y:28.2*TS}]);
+  }
+  if(toZone==='meditate'){
+    const sub=getWaypoints(fromZone,'corridor',CX,27.5*TS);
+    return sub.concat([{x:10.5*TS,y:28.2*TS}]);
+  }
 
   // ── T ↔ T (different top rooms: route through office) ──
   if(fs==='T'&&ts==='T'){
