@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-12T23:54:00.649365+00:00",
+    "type": "conversation",
+    "participants": [
+      "Sterling",
+      "Sun"
+    ],
+    "turns": [
+      {
+        "agent": "Sterling",
+        "role": "CFO",
+        "text": "欸，我剛剛想嘗試把 ASMR 元素放進產品介紹影片裡，你覺得呢？"
+      },
+      {
+        "agent": "Sun",
+        "role": "CEO",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Sterling",
+        "role": "CFO",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-12T22:10:40.041386+00:00",
     "type": "conversation",
     "participants": [
