@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-13T14:39:07.936776+00:00",
+    "type": "conversation",
+    "participants": [
+      "Steve",
+      "Sean"
+    ],
+    "turns": [
+      {
+        "agent": "Steve",
+        "role": "AI技術長",
+        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
+      },
+      {
+        "agent": "Sean",
+        "role": "收藏品研究員",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Steve",
+        "role": "AI技術長",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-13T12:16:54.467092+00:00",
     "type": "conversation",
     "participants": [
