@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-18T02:05:11.230129+00:00",
+    "type": "conversation",
+    "participants": [
+      "Saki",
+      "Sosol"
+    ],
+    "turns": [
+      {
+        "agent": "Saki",
+        "role": "潛水專家健康教練",
+        "text": "欸，我剛剛想嘗試把 ASMR 元素放進產品介紹影片裡，你覺得呢？"
+      },
+      {
+        "agent": "Sosol",
+        "role": "旅遊平台經理",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Saki",
+        "role": "潛水專家健康教練",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-17T23:43:25.515618+00:00",
     "type": "conversation",
     "participants": [
