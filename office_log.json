@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-19T18:24:12.606619+00:00",
+    "type": "conversation",
+    "participants": [
+      "Souling",
+      "Saki"
+    ],
+    "turns": [
+      {
+        "agent": "Souling",
+        "role": "身心靈專家",
+        "text": "欸，我剛剛在研究最近一番賞新品牌，覺得有幾款設計很值得追，你覺得呢？"
+      },
+      {
+        "agent": "Saki",
+        "role": "潛水專家健康教練",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Souling",
+        "role": "身心靈專家",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-19T16:33:47.720334+00:00",
     "type": "conversation",
     "participants": [
