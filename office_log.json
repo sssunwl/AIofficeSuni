@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-20T09:43:31.482443+00:00",
+    "type": "conversation",
+    "participants": [
+      "Sunny",
+      "Scott"
+    ],
+    "turns": [
+      {
+        "agent": "Sunny",
+        "role": "設計總監",
+        "text": "欸，我剛剛發現最近大家對「慢生活」主題的內容互動率特別高，你覺得呢？"
+      },
+      {
+        "agent": "Scott",
+        "role": "內容文字總監",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Sunny",
+        "role": "設計總監",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-20T06:04:04.409740+00:00",
     "type": "conversation",
     "participants": [
