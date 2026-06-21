@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-21T01:59:29.588069+00:00",
+    "type": "conversation",
+    "participants": [
+      "Sunny",
+      "Sterling"
+    ],
+    "turns": [
+      {
+        "agent": "Sunny",
+        "role": "設計總監",
+        "text": "欸，我剛剛在研究最近一番賞新品牌，覺得有幾款設計很值得追，你覺得呢？"
+      },
+      {
+        "agent": "Sterling",
+        "role": "CFO",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Sunny",
+        "role": "設計總監",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-20T23:17:35.168949+00:00",
     "type": "conversation",
     "participants": [
