@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-06-21T07:01:19.991773+00:00",
+    "type": "conversation",
+    "participants": [
+      "Stephanie",
+      "Sosol"
+    ],
+    "turns": [
+      {
+        "agent": "Stephanie",
+        "role": "創意策略總監",
+        "text": "欸，我剛剛想嘗試把 ASMR 元素放進產品介紹影片裡，你覺得呢？"
+      },
+      {
+        "agent": "Sosol",
+        "role": "旅遊平台經理",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Stephanie",
+        "role": "創意策略總監",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-06-21T01:59:29.588069+00:00",
     "type": "conversation",
     "participants": [
