@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-07-01T19:19:09.448986+00:00",
+    "type": "conversation",
+    "participants": [
+      "Sean",
+      "Stephanie"
+    ],
+    "turns": [
+      {
+        "agent": "Sean",
+        "role": "收藏品研究員",
+        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
+      },
+      {
+        "agent": "Stephanie",
+        "role": "創意策略總監",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Sean",
+        "role": "收藏品研究員",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-07-01T17:24:50.452185+00:00",
     "type": "conversation",
     "participants": [
@@ -4970,31 +4995,6 @@
       {
         "agent": "Sunny",
         "role": "設計總監",
-        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
-      }
-    ]
-  },
-  {
-    "time": "2026-06-09T12:43:01.930989+00:00",
-    "type": "conversation",
-    "participants": [
-      "Sean",
-      "Scott"
-    ],
-    "turns": [
-      {
-        "agent": "Sean",
-        "role": "收藏品研究員",
-        "text": "欸，我剛剛在考慮幫 SolisAroma 出一款限定香氛，呼應這季的旅行企劃，你覺得呢？"
-      },
-      {
-        "agent": "Scott",
-        "role": "內容文字總監",
-        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
-      },
-      {
-        "agent": "Sean",
-        "role": "收藏品研究員",
         "text": "對啊，先抓個方向出來，之後再一起討論細節。"
       }
     ]
