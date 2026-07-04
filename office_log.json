@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-07-04T01:20:55.009726+00:00",
+    "type": "conversation",
+    "participants": [
+      "Steve",
+      "Scarlett"
+    ],
+    "turns": [
+      {
+        "agent": "Steve",
+        "role": "AI技術長",
+        "text": "欸，我剛剛發現最近大家對「慢生活」主題的內容互動率特別高，你覺得呢？"
+      },
+      {
+        "agent": "Scarlett",
+        "role": "香氛感官研究員",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Steve",
+        "role": "AI技術長",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-07-03T23:44:36.997638+00:00",
     "type": "conversation",
     "participants": [
@@ -4970,31 +4995,6 @@
       {
         "agent": "Sterling",
         "role": "CFO",
-        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
-      }
-    ]
-  },
-  {
-    "time": "2026-06-12T20:28:47.509635+00:00",
-    "type": "conversation",
-    "participants": [
-      "Saki",
-      "Stephanie"
-    ],
-    "turns": [
-      {
-        "agent": "Saki",
-        "role": "潛水專家健康教練",
-        "text": "欸，我剛剛發現最近大家對「慢生活」主題的內容互動率特別高，你覺得呢？"
-      },
-      {
-        "agent": "Stephanie",
-        "role": "創意策略總監",
-        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
-      },
-      {
-        "agent": "Saki",
-        "role": "潛水專家健康教練",
         "text": "對啊，先抓個方向出來，之後再一起討論細節。"
       }
     ]
