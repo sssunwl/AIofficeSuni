@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-07-06T01:25:20.725369+00:00",
+    "type": "conversation",
+    "participants": [
+      "Summer",
+      "Steve"
+    ],
+    "turns": [
+      {
+        "agent": "Summer",
+        "role": "健康美容生活方式專家",
+        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
+      },
+      {
+        "agent": "Steve",
+        "role": "AI技術長",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Summer",
+        "role": "健康美容生活方式專家",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-07-05T23:36:42.633436+00:00",
     "type": "conversation",
     "participants": [
@@ -4970,31 +4995,6 @@
       {
         "agent": "Scarlett",
         "role": "香氛感官研究員",
-        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
-      }
-    ]
-  },
-  {
-    "time": "2026-06-15T16:28:32.139017+00:00",
-    "type": "conversation",
-    "participants": [
-      "Sterling",
-      "Sona"
-    ],
-    "turns": [
-      {
-        "agent": "Sterling",
-        "role": "CFO",
-        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
-      },
-      {
-        "agent": "Sona",
-        "role": "行銷社媒總監",
-        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
-      },
-      {
-        "agent": "Sterling",
-        "role": "CFO",
         "text": "對啊，先抓個方向出來，之後再一起討論細節。"
       }
     ]
