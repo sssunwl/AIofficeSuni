@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-07-08T21:43:18.829795+00:00",
+    "type": "conversation",
+    "participants": [
+      "Scott",
+      "Scarlett"
+    ],
+    "turns": [
+      {
+        "agent": "Scott",
+        "role": "內容文字總監",
+        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
+      },
+      {
+        "agent": "Scarlett",
+        "role": "香氛感官研究員",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Scott",
+        "role": "內容文字總監",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-07-08T20:24:14.872481+00:00",
     "type": "conversation",
     "participants": [
@@ -4970,31 +4995,6 @@
       {
         "agent": "Souling",
         "role": "身心靈專家",
-        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
-      }
-    ]
-  },
-  {
-    "time": "2026-06-19T16:33:47.720334+00:00",
-    "type": "conversation",
-    "participants": [
-      "Sun",
-      "Sean"
-    ],
-    "turns": [
-      {
-        "agent": "Sun",
-        "role": "CEO",
-        "text": "欸，我剛剛想嘗試把 ASMR 元素放進產品介紹影片裡，你覺得呢？"
-      },
-      {
-        "agent": "Sean",
-        "role": "收藏品研究員",
-        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
-      },
-      {
-        "agent": "Sun",
-        "role": "CEO",
         "text": "對啊，先抓個方向出來，之後再一起討論細節。"
       }
     ]
