@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-07-08T03:48:44.891088+00:00",
+    "type": "conversation",
+    "participants": [
+      "Sterling",
+      "Saki"
+    ],
+    "turns": [
+      {
+        "agent": "Sterling",
+        "role": "CFO",
+        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
+      },
+      {
+        "agent": "Saki",
+        "role": "潛水專家健康教練",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Sterling",
+        "role": "CFO",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-07-08T00:12:43.291357+00:00",
     "type": "conversation",
     "participants": [
@@ -4970,31 +4995,6 @@
       {
         "agent": "Saki",
         "role": "潛水專家健康教練",
-        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
-      }
-    ]
-  },
-  {
-    "time": "2026-06-18T11:18:21.780069+00:00",
-    "type": "conversation",
-    "participants": [
-      "Sosol",
-      "Sunny"
-    ],
-    "turns": [
-      {
-        "agent": "Sosol",
-        "role": "旅遊平台經理",
-        "text": "欸，我剛剛在考慮幫 SolisAroma 出一款限定香氛，呼應這季的旅行企劃，你覺得呢？"
-      },
-      {
-        "agent": "Sunny",
-        "role": "設計總監",
-        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
-      },
-      {
-        "agent": "Sosol",
-        "role": "旅遊平台經理",
         "text": "對啊，先抓個方向出來，之後再一起討論細節。"
       }
     ]
