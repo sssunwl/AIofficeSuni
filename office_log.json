@@ -1,5 +1,30 @@
 [
   {
+    "time": "2026-07-09T04:32:36.237873+00:00",
+    "type": "conversation",
+    "participants": [
+      "Sosol",
+      "Scott"
+    ],
+    "turns": [
+      {
+        "agent": "Sosol",
+        "role": "旅遊平台經理",
+        "text": "欸，我剛剛覺得可以把潛水時拍到的畫面剪成一支療癒系短片，你覺得呢？"
+      },
+      {
+        "agent": "Scott",
+        "role": "內容文字總監",
+        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
+      },
+      {
+        "agent": "Sosol",
+        "role": "旅遊平台經理",
+        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
+      }
+    ]
+  },
+  {
     "time": "2026-07-09T00:16:17.537036+00:00",
     "type": "conversation",
     "participants": [
@@ -4970,31 +4995,6 @@
       {
         "agent": "Sterling",
         "role": "CFO",
-        "text": "對啊，先抓個方向出來，之後再一起討論細節。"
-      }
-    ]
-  },
-  {
-    "time": "2026-06-19T21:46:17.767784+00:00",
-    "type": "conversation",
-    "participants": [
-      "Sun",
-      "Steve"
-    ],
-    "turns": [
-      {
-        "agent": "Sun",
-        "role": "CEO",
-        "text": "欸，我剛剛在想要不要把下一支影片改成沒有旁白、純氛圍音的版本，你覺得呢？"
-      },
-      {
-        "agent": "Steve",
-        "role": "AI技術長",
-        "text": "聽起來蠻有意思的，我覺得可以先做個小範圍測試看看反應。"
-      },
-      {
-        "agent": "Sun",
-        "role": "CEO",
         "text": "對啊，先抓個方向出來，之後再一起討論細節。"
       }
     ]
