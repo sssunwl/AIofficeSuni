@@ -18,13 +18,15 @@ AGENTS_FILE = Path(__file__).resolve().parent / "agents.json"
 LOG_FILE = ROOT / "office_log.json"
 MAX_ENTRIES = 200
 
-PROMPT_TEMPLATE = """你是 Suniverse 公司虛擬辦公室裡的編劇，請幫我寫一段兩位同事之間的簡短對話。
+PROMPT_TEMPLATE = """以下是 Suniverse 公司兩位同事的完整角色設定：
 
-對話雙方：
-1. {name1}，職位是{role1}，關鍵詞「{keywords1}」，說話風格：{style1}
-2. {name2}，職位是{role2}，關鍵詞「{keywords2}」，說話風格：{style2}
+【{name1} — {role1}】
+{system_prompt1}
 
-請寫一段 3-4 句的真實對話，內容是他們剛好在茶水間、走廊或開會空檔，聊起一個工作上的新點子、靈感、觀察或趣事。要符合各自角色與說話風格，繁體中文，自然口語，不要加任何旁白、舞台指示、表情符號或前後綴。
+【{name2} — {role2}】
+{system_prompt2}
+
+請根據以上角色設定，寫一段他們在辦公室裡的真實對話（茶水間、走廊、開會空檔皆可）。內容是聊起一個工作上的新點子、靈感、觀察或趣事，3-4 句，自然口語，繁體中文，不加旁白、舞台指示、表情符號或前後綴。
 
 請嚴格用以下格式輸出，每句一行，不要有空行：
 {name1}: ...
@@ -71,18 +73,16 @@ def parse_turns(raw_text, agent_a, agent_b):
 
 
 def generate_conversation(client, agent_a, agent_b):
+    prompt = PROMPT_TEMPLATE.format(
+        name1=agent_a["name"], role1=agent_a["role"],
+        system_prompt1=agent_a.get("system_prompt", agent_a["style"]),
+        name2=agent_b["name"], role2=agent_b["role"],
+        system_prompt2=agent_b.get("system_prompt", agent_b["style"]),
+    )
     message = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-haiku-4-5-20251001",
         max_tokens=400,
-        messages=[{
-            "role": "user",
-            "content": PROMPT_TEMPLATE.format(
-                name1=agent_a["name"], role1=agent_a["role"],
-                keywords1=agent_a["keywords"], style1=agent_a["style"],
-                name2=agent_b["name"], role2=agent_b["role"],
-                keywords2=agent_b["keywords"], style2=agent_b["style"],
-            ),
-        }],
+        messages=[{"role": "user", "content": prompt}],
     )
     raw_text = message.content[0].text.strip()
     return parse_turns(raw_text, agent_a, agent_b)
