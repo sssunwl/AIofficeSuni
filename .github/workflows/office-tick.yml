@@ -1,8 +1,10 @@
 name: Office Tick
 
 on:
-  schedule:
-    - cron: "*/15 * * * *"
+  # 2026-07-10 停用：已被 Claw Empire（AIoffice/claw-empire）取代，改用
+  # scripts/publish_snapshot.py 讀真實辦公室資料。保留手動觸發以備不時之需。
+  # schedule:
+  #   - cron: "*/15 * * * *"
   workflow_dispatch:
     inputs:
       mock:
